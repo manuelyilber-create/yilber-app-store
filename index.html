@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YILBER | Apps & AI Hub</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent: #38bdf8;
+            --accent-purple: #818cf8;
+            --text: #f8fafc;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text); }
+
+        /* Header / Navbar */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5%;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--accent), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 2px;
+        }
+
+        .auth-btn {
+            background: linear-gradient(45deg, var(--accent), var(--accent-purple));
+            color: #fff;
+            border: none;
+            padding: 0.6rem 1.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .auth-btn:hover { transform: scale(1.05); }
+
+        /* Container Principal */
+        .container { max-width: 1200px; margin: 2rem auto; padding: 0 20px; }
+
+        .hero {
+            text-align: center;
+            margin: 3rem 0;
+        }
+
+        .hero h1 { font-size: 2.5rem; margin-bottom: 1rem; }
+        .hero p { color: #94a3b8; font-size: 1.1rem; }
+
+        /* Secciones de Apps */
+        .section-title { margin: 2rem 0 1rem 0; color: var(--accent); }
+        .app-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; }
+
+        .app-card {
+            background: var(--card-bg);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.3s;
+        }
+
+        .app-card:hover { transform: translateY(-5px); border-color: var(--accent); }
+        .app-card h3 { margin-bottom: 0.5rem; }
+        .app-card p { font-size: 0.9rem; color: #94a3b8; margin-bottom: 1rem; }
+        
+        .download-btn {
+            width: 100%;
+            background: #334155;
+            color: #fff;
+            border: none;
+            padding: 0.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        .download-btn:hover { background: var(--accent); }
+
+        /* Modal Login / Registro */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 200;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            padding: 2.5rem;
+            border-radius: 20px;
+            width: 350px;
+            text-align: center;
+        }
+
+        .modal-content input {
+            width: 100%;
+            padding: 0.8rem;
+            margin: 0.5rem 0;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            background: #0f172a;
+            color: #fff;
+        }
+
+        /* Widget IA Chat */
+        .ai-chat {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--card-bg);
+            width: 300px;
+            border-radius: 15px;
+            border: 1px solid var(--accent);
+            overflow: hidden;
+        }
+
+        .chat-header { background: var(--accent); color: #000; padding: 10px; font-weight: bold; }
+        .chat-body { height: 150px; padding: 10px; font-size: 0.85rem; overflow-y: auto; color: #cbd5e1; }
+        .chat-input { display: flex; }
+        .chat-input input { flex: 1; border: none; padding: 8px; outline: none; background: #0f172a; color: #fff; }
+        .chat-input button { background: var(--accent-purple); border: none; color: white; padding: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <!-- Navegación -->
+    <nav>
+        <div class="logo">YILBER HUB</div>
+        <button class="auth-btn" onclick="toggleModal()">Iniciar Sesión / Registro</button>
+    </nav>
+
+    <div class="container">
+        <div class="hero">
+            <h1>Descarga Software y Apps Exclusivas</h1>
+            <p>Proyectos para Android (APK) y Windows (PC) con tecnología de IA integrada.</p>
+        </div>
+
+        <!-- Sección Android -->
+        <h2 class="section-title">📱 Aplicaciones Android (APK)</h2>
+        <div class="app-grid">
+            <div class="app-card">
+                <h3>Yilber App Premium</h3>
+                <p>Versión 1.0 - Herramienta optimizada para Android.</p>
+                <button class="download-btn">Descargar APK</button>
+            </div>
+        </div>
+
+        <!-- Sección PC -->
+        <h2 class="section-title">💻 Programas PC (Microsoft)</h2>
+        <div class="app-grid">
+            <div class="app-card">
+                <h3>Yilber Soft Pro</h3>
+                <p>Versión 2.0 - Software potente para Windows x64.</p>
+                <button class="download-btn">Descargar para Windows</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Registro / Login -->
+    <div class="modal" id="authModal">
+        <div class="modal-content">
+            <h2>Bienvenido</h2>
+            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">Crea tu cuenta para acceder a descargas</p>
+            <input type="text" placeholder="Usuario">
+            <input type="email" placeholder="Correo electrónico">
+            <input type="password" placeholder="Contraseña">
+            <button class="auth-btn" style="width: 100%; margin-top: 1rem;" onclick="toggleModal()">Entrar / Registrarme</button>
+        </div>
+    </div>
+
+    <!-- Mini Chat con IA -->
+    <div class="ai-chat">
+        <div class="chat-header">🤖 Asistente Yilber IA</div>
+        <div class="chat-body" id="chatBox">
+            <p><strong>IA:</strong> ¡Hola! Soy la IA de Yilber. ¿En qué te puedo ayudar hoy?</p>
+        </div>
+        <div class="chat-input">
+            <input type="text" id="userInput" placeholder="Escribe algo...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleModal() {
+            const modal = document.getElementById('authModal');
+            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('userInput');
+            const chatBox = document.getElementById('chatBox');
+            if(input.value.trim() !== "") {
+                chatBox.innerHTML += `<p><strong>Tú:</strong> ${input.value}</p>`;
+                chatBox.innerHTML += `<p><strong>IA:</strong> Estoy respondiendo a tu consulta sobre "${input.value}"...</p>`;
+                input.value = "";
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }
+        }
+    </script>
+</body>
+</html>
