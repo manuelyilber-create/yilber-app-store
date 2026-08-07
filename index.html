@@ -4,561 +4,467 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>STORE YILBER | Apps, PC & AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-main: #060d1a;
-            --glass-bg: rgba(15, 25, 45, 0.65);
-            --glass-border: rgba(56, 189, 248, 0.25);
-            --accent-green: #3ddc84;
-            --accent-cyan: #38bdf8;
-            --accent-blue: #2563eb;
-            --text-white: #ffffff;
-            --text-dim: #94a3b8;
+            --glass-bg: rgba(8, 15, 30, 0.75);
+            --glass-border: rgba(56, 189, 248, 0.4);
+            --cyan-glow: #38bdf8;
+            --purple-glow: #a855f7;
+            --green-glow: #22c55e;
+            --text-light: #f1f5f9;
         }
 
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        * { 
+            margin: 0; 
+            padding: 0; 
+            box-sizing: border-box; 
+            font-family: 'Rajdhani', sans-serif; 
+        }
 
         body {
-            background-color: var(--bg-main);
-            color: var(--text-white);
-            min-height: 100vh;
-            /* Fondo cibernético programado con código CSS */
-            background-image: 
-                radial-gradient(circle at 50% 10%, rgba(56, 189, 248, 0.2) 0%, transparent 50%),
-                radial-gradient(circle at 10% 40%, rgba(61, 220, 132, 0.15) 0%, transparent 40%),
-                radial-gradient(circle at 90% 70%, rgba(37, 99, 235, 0.2) 0%, transparent 40%),
-                linear-gradient(rgba(6, 13, 26, 0.88), rgba(6, 13, 26, 0.88)),
-                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(56, 189, 248, 0.03) 3px, rgba(56, 189, 248, 0.03) 3px);
+            /* NUEVO FONDO CIBERNÉTICO SUBIDO POR TI */
+            background-image: url('fondo-store.png');
+            background-size: cover;
+            background-position: center;
             background-attachment: fixed;
-            overflow-x: hidden;
+            background-repeat: no-repeat;
+            background-color: #040814;
+            color: var(--text-light);
+            min-height: 100vh;
         }
 
-        /* BARRA SUPERIOR */
+        /* BARRA DE NAVEGACIÓN SUPERIOR */
         nav {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 0.8rem 4%;
-            background: rgba(10, 18, 36, 0.8);
-            backdrop-filter: blur(15px);
+            padding: 0.8rem 5%;
+            background: rgba(4, 8, 20, 0.85);
+            backdrop-filter: blur(12px);
             position: sticky;
             top: 0;
             z-index: 100;
-            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            border-bottom: 1px solid var(--glass-border);
         }
 
-        .logo-left {
-            font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--accent-cyan);
-            letter-spacing: 1px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+        .nav-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 800;
+            font-size: 1.3rem;
+            color: var(--cyan-glow);
+            letter-spacing: 2px;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.6);
         }
 
-        .nav-actions { display: flex; gap: 10px; }
-
-        .btn-main {
-            background: linear-gradient(90deg, #38bdf8, #818cf8);
+        .btn-auth {
+            background: linear-gradient(90deg, #38bdf8, #8b5cf6);
             color: #fff;
             border: none;
-            padding: 0.5rem 1.3rem;
-            border-radius: 20px;
-            font-weight: 600;
+            padding: 0.6rem 1.4rem;
+            border-radius: 25px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 0.85rem;
+            font-weight: 700;
             cursor: pointer;
             box-shadow: 0 0 15px rgba(56, 189, 248, 0.4);
             transition: 0.3s;
         }
 
-        .btn-admin {
-            background: linear-gradient(90deg, #f59e0b, #ef4444);
+        .btn-auth:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(139, 92, 246, 0.7);
+        }
+
+        /* ENCABEZADO Y TÍTULO */
+        .hero {
+            text-align: center;
+            padding: 2.5rem 1rem 1.5rem;
+        }
+
+        .hero h1 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 2.4rem;
+            font-weight: 900;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
+            letter-spacing: 1px;
+        }
+
+        .hero p {
+            color: #cbd5e1;
+            font-size: 1.1rem;
+            margin-top: 0.5rem;
+            font-weight: 500;
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 1rem 20px 100px;
+        }
+
+        /* PANEL DE ADMINISTRACIÓN */
+        .admin-panel {
+            background: var(--glass-bg);
+            border: 1px solid var(--purple-glow);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2.5rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.25);
+        }
+
+        .admin-panel h2 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            color: var(--purple-glow);
+            margin-bottom: 1.2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 0.5rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.7rem;
+            border-radius: 8px;
+            border: 1px solid var(--glass-border);
+            background: rgba(4, 8, 20, 0.8);
+            color: #fff;
+            outline: none;
+            font-size: 0.95rem;
+        }
+
+        .btn-submit {
+            background: linear-gradient(90deg, #a855f7, #38bdf8);
             color: #fff;
             border: none;
-            padding: 0.5rem 1.1rem;
-            border-radius: 20px;
-            font-weight: 600;
-            cursor: pointer;
-            box-shadow: 0 0 15px rgba(245, 158, 11, 0.3);
-            transition: 0.3s;
-        }
-
-        .btn-main:hover, .btn-admin:hover { transform: scale(1.05); }
-
-        /* HEADER CENTRAL / LOGO CABECERA */
-        .hero-header {
-            text-align: center;
-            padding: 2rem 1rem 1rem 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .logo-center-box {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            margin-bottom: 0.8rem;
-            background: rgba(15, 25, 45, 0.5);
-            padding: 10px 30px;
-            border-radius: 50px;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
-        }
-
-        .android-hug {
-            font-size: 2.8rem;
-            filter: drop-shadow(0 0 10px #3ddc84);
-            animation: pulse 2s infinite alternate;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            100% { transform: scale(1.08); }
-        }
-
-        .brand-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            background: linear-gradient(180deg, #ffffff 0%, #38bdf8 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: 3px;
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.5);
-        }
-
-        .hero-header h1 {
-            font-size: 2.2rem;
-            margin-top: 0.5rem;
+            padding: 0.8rem;
+            border-radius: 8px;
+            font-family: 'Orbitron', sans-serif;
             font-weight: 700;
-            text-shadow: 0 0 10px rgba(255,255,255,0.3);
-        }
-
-        .hero-header p {
-            color: var(--text-dim);
-            font-size: 1rem;
-            margin-top: 0.3rem;
-        }
-
-        /* BUSCADOR CON LUPA */
-        .search-area {
-            display: flex;
-            justify-content: center;
-            margin: 1.5rem 0;
-            padding: 0 20px;
-        }
-
-        .search-wrapper {
-            position: relative;
+            font-size: 0.9rem;
+            cursor: pointer;
             width: 100%;
-            max-width: 550px;
+            transition: 0.3s;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.4);
         }
 
-        .search-wrapper input {
+        .btn-submit:hover {
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.7);
+        }
+
+        .progress-bar-container {
             width: 100%;
-            padding: 0.8rem 1rem 0.8rem 3rem;
-            border-radius: 30px;
-            border: 1px solid var(--glass-border);
-            background: rgba(15, 25, 45, 0.8);
-            color: #fff;
-            font-size: 0.95rem;
-            outline: none;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 6px;
+            margin-top: 1rem;
+            display: none;
+            overflow: hidden;
         }
 
-        .search-wrapper .icon {
-            position: absolute;
-            left: 1.2rem;
-            top: 50%;
-            transform: translateY(-50%);
-            color: var(--accent-cyan);
-            font-size: 1.1rem;
+        .progress-bar {
+            width: 0%;
+            height: 8px;
+            background: var(--cyan-glow);
+            transition: width 0.3s;
         }
 
-        /* CONTENEDOR SECCIONES */
-        .main-container {
-            max-width: 1100px;
-            margin: 0 auto;
-            padding: 0 20px 80px 20px;
-        }
-
-        .section-header {
+        /* SECCIONES Y TARJETAS */
+        .section-title {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2rem;
+            margin: 2rem 0 1rem;
             display: flex;
             align-items: center;
             gap: 10px;
-            font-size: 1.3rem;
-            margin: 2rem 0 1rem 0;
-            font-weight: 700;
         }
 
-        .section-header.android { color: var(--accent-green); }
-        .section-header.pc { color: var(--accent-cyan); }
+        .section-title.android { color: var(--green-glow); text-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
+        .section-title.pc { color: var(--cyan-glow); text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
 
-        /* TARJETAS ESTILO CRISTAL */
-        .cards-grid {
+        .app-grid {
             display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.5rem;
         }
 
-        .card-row {
+        .app-card {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
-            border-radius: 18px;
-            padding: 1.5rem;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            border-radius: 16px;
+            padding: 1.2rem;
+            backdrop-filter: blur(16px);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
-            gap: 20px;
-            flex-wrap: wrap;
+            text-align: center;
             transition: 0.3s;
         }
 
-        .card-row:hover {
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 20px rgba(56, 189, 248, 0.3);
-            transform: translateY(-2px);
+        .app-card:hover {
+            border-color: var(--cyan-glow);
+            transform: translateY(-5px);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.35);
         }
 
-        .card-info h3 {
-            font-size: 1.2rem;
-            margin-bottom: 0.2rem;
+        .app-card img {
+            width: 80px;
+            height: 80px;
+            border-radius: 18px;
+            object-fit: cover;
+            margin-bottom: 0.8rem;
+            border: 1px solid var(--glass-border);
+            box-shadow: 0 0 15px rgba(0,0,0,0.6);
         }
 
-        .card-info .version {
+        .app-card h3 {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .app-card .category {
+            color: #94a3b8;
+            font-size: 0.85rem;
+            margin-bottom: 1rem;
+        }
+
+        .btn-download {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--glass-border);
+            color: #fff;
+            padding: 0.6rem 1.4rem;
+            border-radius: 10px;
+            text-decoration: none;
+            font-family: 'Orbitron', sans-serif;
             font-size: 0.8rem;
-            color: var(--text-dim);
-            margin-bottom: 0.6rem;
+            font-weight: 700;
+            transition: 0.3s;
+            width: 100%;
             display: block;
         }
 
-        .card-info p {
-            color: #cbd5e1;
-            font-size: 0.9rem;
-        }
-
-        .card-icons-visual {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0,0,0,0.2);
-            padding: 10px 20px;
-            border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.05);
-        }
-
-        .card-icons-visual span { font-size: 2rem; }
-
-        .btn-download {
-            background: rgba(255, 255, 255, 0.1);
-            color: #fff;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            padding: 0.6rem 1.8rem;
-            border-radius: 10px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9rem;
-            transition: 0.3s;
-            cursor: pointer;
-        }
-
         .btn-download:hover {
-            background: var(--accent-cyan);
-            color: #000;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+            background: var(--cyan-glow);
+            color: #040814;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
         }
 
-        /* MODALES */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            justify-content: center;
-            align-items: center;
-            z-index: 200;
-        }
-
-        .modal-box {
-            background: #0f192d;
-            border: 1px solid var(--glass-border);
-            padding: 2rem;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 400px;
-            text-align: center;
-        }
-
-        .modal-box input, .modal-box select {
-            width: 100%;
-            padding: 0.8rem;
-            margin: 0.5rem 0;
-            border-radius: 8px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: #060d1a;
-            color: #fff;
-            outline: none;
-        }
-
-        /* CHATBOT IA FLOANTE */
-        .ai-widget {
+        /* CHATBOT IA FIJO */
+        .ai-chat {
             position: fixed;
             bottom: 20px;
             right: 20px;
-            width: 320px;
-            background: rgba(15, 25, 45, 0.95);
-            border: 1px solid var(--accent-cyan);
-            border-radius: 15px;
+            width: 300px;
+            background: rgba(6, 11, 25, 0.9);
+            border: 1px solid var(--cyan-glow);
+            border-radius: 14px;
             overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(10px);
+            box-shadow: 0 0 25px rgba(0,0,0,0.8);
+            backdrop-filter: blur(12px);
+            z-index: 1000;
         }
 
         .ai-header {
-            background: linear-gradient(90deg, var(--accent-blue), var(--accent-cyan));
-            color: #fff;
-            padding: 10px 15px;
-            font-weight: 700;
-            font-size: 0.9rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ai-body {
-            height: 160px;
-            padding: 12px;
+            background: linear-gradient(90deg, #0284c7, #38bdf8);
+            padding: 8px 12px;
+            font-family: 'Orbitron', sans-serif;
             font-size: 0.85rem;
-            overflow-y: auto;
-            color: #cbd5e1;
+            font-weight: 700;
+            color: #fff;
         }
 
+        .ai-body { height: 120px; padding: 10px; font-size: 0.85rem; color: #cbd5e1; overflow-y: auto; }
         .ai-input { display: flex; border-top: 1px solid rgba(255,255,255,0.1); }
-        .ai-input input { flex: 1; padding: 8px 12px; border: none; background: #060d1a; color: #fff; outline: none; }
-        .ai-input button { background: var(--accent-cyan); border: none; color: #000; padding: 8px 15px; font-weight: 700; cursor: pointer; }
+        .ai-input input { flex: 1; padding: 8px; background: #040814; border: none; color: #fff; outline: none; font-size: 0.85rem; }
+        .ai-input button { background: var(--cyan-glow); border: none; padding: 8px 12px; font-weight: 700; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <!-- BARRA NAVEGACIÓN -->
     <nav>
-        <div class="logo-left">
-            <span>📡</span> YILBER
-        </div>
-        <div class="nav-actions">
-            <button class="btn-admin" onclick="openAdminModal()">🔑 Admin</button>
-            <button class="btn-main" onclick="toggleModal('authModal')">Iniciar Sesión / Registro</button>
-        </div>
+        <div class="nav-logo">📡 STORE YILBER</div>
+        <button class="btn-auth">Iniciar Sesión / Registro</button>
     </nav>
 
-    <!-- CABECERA PRINCIPAL -->
-    <div class="hero-header">
-        <div class="logo-center-box">
-            <span class="android-hug">🤖</span>
-            <div class="brand-title">STORE YILBER</div>
-            <span class="android-hug">🤖</span>
-        </div>
-        <h1>Descarga Software y Apps Exclusivas</h1>
-        <p>Proyectos para Android (APK) y Windows (PC) con tecnología de IA Integrada.</p>
+    <div class="hero">
+        <h1>STORE YILBER</h1>
+        <p>Descarga Software, Juegos y Apps Exclusivas con IA Integrada</p>
     </div>
 
-    <!-- BUSCADOR CON LUPA -->
-    <div class="search-area">
-        <div class="search-wrapper">
-            <span class="icon">🔍</span>
-            <input type="text" id="searchInput" onkeyup="filterApps()" placeholder="Buscar por nombre de app o programa...">
-        </div>
-    </div>
-
-    <!-- SECCIONES -->
-    <div class="main-container">
+    <div class="container">
         
-        <!-- SECCIÓN ANDROID -->
-        <div class="section-header android">
-            <span>📱</span> Aplicaciones Android (APK)
+        <!-- PANEL DE ADMINISTRACIÓN -->
+        <div class="admin-panel">
+            <h2>⚙️ Panel de Administración (Subir App / Logo)</h2>
+            <form id="uploadForm">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Nombre de la App / Programa:</label>
+                        <input type="text" id="appName" placeholder="Ej: Yilber App Pro" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría:</label>
+                        <select id="appCategory">
+                            <option value="Android APK">📱 Android (.APK)</option>
+                            <option value="Programa PC">💻 Programa PC (.EXE)</option>
+                            <option value="Juego">🎮 Juego</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Logo / Imagen (.PNG, .JPG):</label>
+                        <input type="file" id="appLogo" accept="image/*" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Archivo (.APK, .EXE, .ZIP):</label>
+                        <input type="file" id="appFile" accept=".apk,.exe,.zip,.rar" required>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="btnSubmit">Publicar en la Tienda</button>
+
+                <div class="progress-bar-container" id="progressContainer">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+            </form>
         </div>
-        <div class="cards-grid" id="androidGrid">
-            <div class="card-row" data-name="yilber app premium">
-                <div class="card-info">
-                    <h3>Yilber App Premium</h3>
-                    <span class="version">Versión 1.0 - Herramienta optimizada para Android.</span>
-                    <p>Herramientas y algoritmos inteligentes listos para usar en móvil.</p>
-                </div>
-                <div class="card-icons-visual">
-                    <span>🐍</span>
-                    <span>📱</span>
-                    <span>📂</span>
-                </div>
+
+        <!-- SECCIÓN DE APPS -->
+        <div class="section-title android">📱 Aplicaciones y Software Disponibles</div>
+        <div class="app-grid" id="appGrid">
+            <!-- Ejemplo estático de muestra -->
+            <div class="app-card">
+                <img src="https://via.placeholder.com/80/38bdf8/040814?text=YILBER" alt="App">
+                <h3>Yilber App Premium</h3>
+                <span class="category">Android (.APK)</span>
                 <a href="#" class="btn-download">Descargar APK</a>
             </div>
         </div>
 
-        <!-- SECCIÓN PC -->
-        <div class="section-header pc">
-            <span>💻</span> Programas PC (Microsoft)
-        </div>
-        <div class="cards-grid" id="pcGrid">
-            <div class="card-row" data-name="yilber soft pro">
-                <div class="card-info">
-                    <h3>Yilber Soft Pro</h3>
-                    <span class="version">Versión 2.0 - Software potente para Windows x64.</span>
-                    <p>Suite completa para PC optimizada con alto rendimiento.</p>
-                </div>
-                <div class="card-icons-visual">
-                    <span>🤖</span>
-                    <span>💻</span>
-                </div>
-                <a href="#" class="btn-download">Descargar para Windows</a>
-            </div>
-        </div>
-
     </div>
 
-    <!-- MODAL AUTENTICACIÓN -->
-    <div class="modal" id="authModal">
-        <div class="modal-box">
-            <h2>Acceso de Usuario</h2>
-            <p style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 1rem;">Regístrate o inicia sesión</p>
-            <input type="text" placeholder="Usuario">
-            <input type="password" placeholder="Contraseña">
-            <button class="btn-main" style="width: 100%; margin-top: 1rem;" onclick="toggleModal('authModal')">Entrar</button>
-            <button class="btn-main" style="width: 100%; margin-top: 0.5rem; background: transparent; color: #94a3b8; box-shadow: none;" onclick="toggleModal('authModal')">Cerrar</button>
-        </div>
-    </div>
-
-    <!-- MODAL PANEL ADMINISTRADOR -->
-    <div class="modal" id="adminModal">
-        <div class="modal-box">
-            <h2>Panel Admin (Yilber)</h2>
-            <p style="font-size: 0.8rem; color: #f59e0b; margin-bottom: 1rem;">Sube nuevas apps o programas</p>
-            
-            <div id="adminAuth">
-                <input type="password" id="adminPass" placeholder="Clave de Administrador">
-                <button class="btn-admin" style="width: 100%; margin-top: 1rem;" onclick="loginAdmin()">Ingresar</button>
-            </div>
-
-            <div id="adminForm" style="display: none;">
-                <input type="text" id="appName" placeholder="Nombre de App / Software">
-                <select id="appCategory">
-                    <option value="android">📱 Android (APK)</option>
-                    <option value="pc">💻 PC (Windows)</option>
-                </select>
-                <input type="text" id="appVersion" placeholder="Versión (Ej: v1.5)">
-                <input type="text" id="appDesc" placeholder="Descripción breve">
-                <input type="text" id="appLink" placeholder="Enlace de descarga (URL)">
-                <button class="btn-admin" style="width: 100%; margin-top: 1rem;" onclick="addApp()">Publicar en la Web</button>
-            </div>
-            
-            <button class="btn-main" style="width: 100%; margin-top: 0.5rem; background: transparent; color: #94a3b8; box-shadow: none;" onclick="toggleModal('adminModal')">Cerrar</button>
-        </div>
-    </div>
-
-    <!-- CHATBOT CON IA -->
-    <div class="ai-widget">
-        <div class="ai-header">
-            🤖 Asistente Yilber IA
-        </div>
-        <div class="ai-body" id="chatBox">
-            <p><strong>IA:</strong> ¡Hola! Soy la IA de Yilber. ¿En qué te puedo ayudar hoy?</p>
+    <!-- CHATBOT IA -->
+    <div class="ai-chat">
+        <div class="ai-header">🤖 Asistente Yilber IA</div>
+        <div class="ai-body">
+            <p><strong>IA:</strong> ¡Hola! Soy la IA de Store Yilber. ¿En qué te puedo ayudar hoy?</p>
         </div>
         <div class="ai-input">
-            <input type="text" id="userInput" placeholder="Escribe algo...">
-            <button onclick="sendMessage()">Enviar</button>
+            <input type="text" placeholder="Escribe un mensaje...">
+            <button>Enviar</button>
         </div>
     </div>
 
+    <!-- FIREBASE SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
+
     <script>
-        function toggleModal(id) {
-            const modal = document.getElementById(id);
-            modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
-        }
+        // REEMPLAZA ESTOS DATOS CUANDO TENGAS TU PROYECTO DE FIREBASE CONFIGURADO
+        const firebaseConfig = {
+            apiKey: "TU_API_KEY",
+            authDomain: "TU_PROJECT.firebaseapp.com",
+            projectId: "TU_PROJECT",
+            storageBucket: "TU_PROJECT.appspot.com",
+            messagingSenderId: "123456789",
+            appId: "1:123456789:web:123456"
+        };
 
-        // Buscador por nombre
-        function filterApps() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const cards = document.querySelectorAll('.card-row');
+        // Inicializar Firebase si los datos existen
+        try {
+            firebase.initializeApp(firebaseConfig);
+            const db = firebase.firestore();
+            const storage = firebase.storage();
 
-            cards.forEach(card => {
-                const name = card.getAttribute('data-name');
-                if (name.includes(input)) {
-                    card.style.display = 'flex';
-                } else {
-                    card.style.display = 'none';
+            const uploadForm = document.getElementById('uploadForm');
+            const btnSubmit = document.getElementById('btnSubmit');
+            const progressContainer = document.getElementById('progressContainer');
+            const progressBar = document.getElementById('progressBar');
+            const appGrid = document.getElementById('appGrid');
+
+            uploadForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const name = document.getElementById('appName').value;
+                const category = document.getElementById('appCategory').value;
+                const logoFile = document.getElementById('appLogo').files[0];
+                const apkFile = document.getElementById('appFile').files[0];
+
+                btnSubmit.disabled = true;
+                btnSubmit.innerText = "Subiendo archivo...";
+                progressContainer.style.display = "block";
+
+                try {
+                    const logoRef = storage.ref(`logos/${Date.now()}_${logoFile.name}`);
+                    await logoRef.put(logoFile);
+                    const logoUrl = await logoRef.getDownloadURL();
+
+                    const fileRef = storage.ref(`apps/${Date.now()}_${apkFile.name}`);
+                    const uploadTask = fileRef.put(apkFile);
+
+                    uploadTask.on('state_changed', 
+                        (snapshot) => {
+                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                            progressBar.style.width = progress + '%';
+                        }, 
+                        (error) => alert('Error: ' + error.message), 
+                        async () => {
+                            const fileUrl = await fileRef.getDownloadURL();
+                            await db.collection('apps').add({
+                                name, category, logoUrl, fileUrl,
+                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                            alert('¡Publicado con éxito!');
+                            uploadForm.reset();
+                            progressBar.style.width = '0%';
+                            progressContainer.style.display = "none";
+                            btnSubmit.disabled = false;
+                            btnSubmit.innerText = "Publicar en la Tienda";
+                        }
+                    );
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                    btnSubmit.disabled = false;
                 }
             });
-        }
 
-        // Panel Administrador
-        function openAdminModal() {
-            toggleModal('adminModal');
-        }
-
-        function loginAdmin() {
-            const pass = document.getElementById('adminPass').value;
-            if(pass === "yilber123") {
-                document.getElementById('adminAuth').style.display = "none";
-                document.getElementById('adminForm').style.display = "block";
-            } else {
-                alert("Clave incorrecta.");
-            }
-        }
-
-        function addApp() {
-            const name = document.getElementById('appName').value;
-            const category = document.getElementById('appCategory').value;
-            const version = document.getElementById('appVersion').value || 'v1.0';
-            const desc = document.getElementById('appDesc').value;
-            const link = document.getElementById('appLink').value || '#';
-
-            if(!name || !desc) {
-                alert("Por favor completa el nombre y la descripción.");
-                return;
-            }
-
-            const targetGrid = category === 'android' ? document.getElementById('androidGrid') : document.getElementById('pcGrid');
-
-            const newCard = document.createElement('div');
-            newCard.className = 'card-row';
-            newCard.setAttribute('data-name', name.toLowerCase());
-            newCard.innerHTML = `
-                <div class="card-info">
-                    <h3>${name}</h3>
-                    <span class="version">${version} - ${category.toUpperCase()}</span>
-                    <p>${desc}</p>
-                </div>
-                <div class="card-icons-visual">
-                    <span>${category === 'android' ? '📱' : '💻'}</span>
-                    <span>📂</span>
-                </div>
-                <a href="${link}" target="_blank" class="btn-download">Descargar</a>
-            `;
-
-            targetGrid.appendChild(newCard);
-            alert("¡App agregada a la lista correctamente!");
-            
-            document.getElementById('appName').value = '';
-            document.getElementById('appDesc').value = '';
-            document.getElementById('appLink').value = '';
-            toggleModal('adminModal');
-        }
-
-        // Mini Chat
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const chatBox = document.getElementById('chatBox');
-            if(input.value.trim() !== "") {
-                chatBox.innerHTML += `<p><strong>Tú:</strong> ${input.value}</p>`;
-                chatBox.innerHTML += `<p><strong>IA:</strong> Puedes buscar "${input.value}" usando la barra superior con lupa.</p>`;
-                input.value = "";
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }
+            db.collection('apps').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
+                appGrid.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const app = doc.data();
+                    const card = document.createElement('div');
+                    card.className = 'app-card';
+                    card.innerHTML = `
+                        <img src="${app.logoUrl}" alt="${app.name}">
+                        <h3>${app.name}</h3>
+                        <span class="category">${app.category}</span>
+                        <a href="${app.fileUrl}" class="btn-download" download target="_blank">Descargar</a>
+                    `;
+                    appGrid.appendChild(card);
+                });
+            });
+        } catch(e) {
+            console.log("Firebase no configurado aún.");
         }
     </script>
 </body>
