@@ -1,654 +1,455 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>STORE YILBER | Tienda de Aplicaciones & Juegos</title>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800;900&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-dark: #070d19;
-            --card-bg: rgba(15, 23, 42, 0.85);
-            --glass-border: rgba(56, 189, 248, 0.3);
-            --cyan-glow: #38bdf8;
-            --cyan-hover: #0284c7;
-            --green-glow: #22c55e;
-            --purple-glow: #a855f7;
-            --text-main: #f8fafc;
-            --text-muted: #94a3b8;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>STORE YILBER - Apps & Software</title>
+  
+  <!-- Estilos CSS -->
+  <style>
+    :root {
+      --bg-color: #0b0f19;
+      --card-bg: rgba(16, 24, 48, 0.85);
+      --accent-cyan: #00f2fe;
+      --accent-blue: #4facfe;
+      --accent-purple: #7b2cbf;
+      --text-color: #ffffff;
+      --admin-color: #ff0055;
+    }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Rajdhani', sans-serif;
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
 
-        body {
-            background-color: var(--bg-dark);
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(56, 189, 248, 0.12) 0px, transparent 50%),
-                radial-gradient(at 100% 100%, rgba(168, 85, 247, 0.12) 0px, transparent 50%);
-            background-attachment: fixed;
-            color: var(--text-main);
-            min-height: 100vh;
-            padding-bottom: 60px;
-        }
+    body {
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      background-image: radial-gradient(circle at 50% 50%, #151d36 0%, #0b0f19 100%);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
 
-        /* BARRA NAVEGACIÓN */
-        nav {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 0.8rem 5%;
-            background: rgba(7, 13, 25, 0.95);
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid var(--glass-border);
-            gap: 15px;
-            flex-wrap: wrap;
-        }
+    /* Navbar */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(11, 15, 25, 0.9);
+      border-bottom: 1px solid rgba(0, 242, 254, 0.2);
+      backdrop-filter: blur(10px);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
 
-        .nav-brand {
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 800;
-            font-size: 1.4rem;
-            color: var(--cyan-glow);
-            text-decoration: none;
-            letter-spacing: 1px;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-        }
+    .logo {
+      font-size: 1.8rem;
+      font-weight: bold;
+      background: linear-gradient(45deg, var(--accent-cyan), var(--accent-purple));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
 
-        .nav-links {
-            display: flex;
-            gap: 20px;
-            list-style: none;
-        }
+    .user-controls {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
 
-        .nav-links a {
-            color: var(--text-main);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 1rem;
-            transition: 0.2s;
-        }
+    .btn {
+      padding: 8px 18px;
+      border-radius: 20px;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+      transition: all 0.3s ease;
+    }
 
-        .nav-links a:hover {
-            color: var(--cyan-glow);
-        }
+    .btn-primary {
+      background: linear-gradient(45deg, var(--accent-blue), var(--accent-cyan));
+      color: #000;
+      box-shadow: 0 0 10px rgba(0, 242, 254, 0.4);
+    }
 
-        .search-box {
-            display: flex;
-            align-items: center;
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            padding: 0.4rem 1rem;
-            width: 100%;
-            max-width: 300px;
-        }
+    .btn-primary:hover {
+      box-shadow: 0 0 20px rgba(0, 242, 254, 0.8);
+      transform: translateY(-2px);
+    }
 
-        .search-box input {
-            background: transparent;
-            border: none;
-            outline: none;
-            color: #fff;
-            width: 100%;
-            font-size: 0.95rem;
-        }
+    .btn-danger {
+      background: #ff3366;
+      color: white;
+    }
 
-        .btn-auth {
-            background: linear-gradient(90deg, var(--cyan-glow), var(--purple-glow));
-            color: #fff;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 20px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
-            font-weight: 700;
-            cursor: pointer;
-            transition: 0.3s;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.4);
-        }
+    /* Contenido Principal */
+    main {
+      max-width: 1100px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+      width: 100%;
+      flex: 1;
+    }
 
-        .btn-auth:hover {
-            transform: scale(1.04);
-        }
+    .hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
 
-        /* CONTENEDOR PRINCIPAL */
-        .container {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 20px;
-        }
+    .hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+      text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+    }
 
-        /* BANNERS DESTACADOS */
-        .hero-banner-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-bottom: 35px;
-        }
+    .hero p {
+      color: #a0aec0;
+    }
 
-        .banner-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.9));
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 160px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            position: relative;
-            overflow: hidden;
-        }
+    /* Secciones de Apps */
+    .section-title {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+      border-left: 4px solid var(--accent-cyan);
+      padding-left: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
 
-        .banner-card::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200px;
-            height: 200px;
-            background: var(--cyan-glow);
-            filter: blur(80px);
-            opacity: 0.15;
-            border-radius: 50%;
-        }
+    .app-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-bottom: 3rem;
+    }
 
-        .banner-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.3rem;
-            margin-bottom: 5px;
-        }
+    .card {
+      background: var(--card-bg);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+      backdrop-filter: blur(4px);
+      transition: transform 0.3s ease, border-color 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
 
-        .banner-desc {
-            color: var(--text-muted);
-            font-size: 0.9rem;
-            margin-bottom: 15px;
-        }
+    .card:hover {
+      transform: translateY(-5px);
+      border-color: var(--accent-cyan);
+    }
 
-        .btn-green {
-            background: var(--green-glow);
-            color: #040814;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 700;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 0.8rem;
-            cursor: pointer;
-            align-self: flex-start;
-            transition: 0.2s;
-        }
+    .card h3 {
+      color: var(--accent-cyan);
+      margin-bottom: 5px;
+    }
 
-        .btn-green:hover {
-            box-shadow: 0 0 15px rgba(34, 197, 94, 0.7);
-            transform: translateY(-2px);
-        }
+    .card p {
+      font-size: 0.9rem;
+      color: #cbd5e0;
+      margin-bottom: 15px;
+    }
 
-        /* SECCIONES Y GRIDS DE APPS */
-        .section-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 30px 0 15px;
-            border-bottom: 1px solid rgba(255,255,255,0.08);
-            padding-bottom: 8px;
-        }
+    .card .version {
+      font-size: 0.8rem;
+      color: #718096;
+      margin-bottom: 10px;
+    }
 
-        .section-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.2rem;
-            color: var(--cyan-glow);
-        }
+    /* PANEL DE ADMINISTRADOR (Oculto por defecto) */
+    #admin-panel {
+      display: none;
+      background: rgba(255, 0, 85, 0.05);
+      border: 2px dashed var(--admin-color);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
 
-        .app-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 15px;
-        }
+    #admin-panel h2 {
+      color: var(--admin-color);
+      margin-bottom: 1rem;
+    }
 
-        .app-item {
-            background: var(--card-bg);
-            border: 1px solid rgba(255,255,255,0.05);
-            border-radius: 12px;
-            padding: 12px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            cursor: pointer;
-            transition: 0.2s;
-            backdrop-filter: blur(10px);
-        }
+    .admin-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
 
-        .app-item:hover {
-            border-color: var(--cyan-glow);
-            transform: translateY(-3px);
-            background: rgba(30, 41, 59, 0.9);
-        }
+    .admin-form input, .admin-form select {
+      padding: 10px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #1a202c;
+      color: white;
+    }
 
-        .app-icon {
-            width: 55px;
-            height: 55px;
-            border-radius: 12px;
-            object-fit: cover;
-            background: #1e293b;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: bold;
-            font-size: 1.2rem;
-            color: var(--cyan-glow);
-            border: 1px solid var(--glass-border);
-        }
+    .admin-form button {
+      grid-column: span 2;
+      background: var(--admin-color);
+      color: white;
+      padding: 10px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
 
-        .app-info {
-            flex: 1;
-            overflow: hidden;
-        }
+    /* Modal Autenticación */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.8);
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
+    }
 
-        .app-name {
-            font-size: 1rem;
-            font-weight: 700;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+    .modal-content {
+      background: #1a202c;
+      padding: 2rem;
+      border-radius: 12px;
+      width: 350px;
+      border: 1px solid var(--accent-cyan);
+    }
 
-        .app-dev {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
+    .modal-content h2 {
+      margin-bottom: 1rem;
+      text-align: center;
+    }
 
-        .app-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-size: 0.8rem;
-            color: #f59e0b;
-            margin-top: 3px;
-        }
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border: 1px solid #333;
+      background: #2d3748;
+      color: white;
+    }
 
-        .badge-cat {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--cyan-glow);
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 0.7rem;
-        }
-
-        /* PANEL ADMIN */
-        .admin-card {
-            background: rgba(15, 23, 42, 0.95);
-            border: 1px solid var(--purple-glow);
-            border-radius: 16px;
-            padding: 20px;
-            margin-top: 40px;
-            box-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
-        }
-
-        .admin-card h2 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1rem;
-            color: var(--purple-glow);
-            margin-bottom: 15px;
-        }
-
-        .form-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 12px;
-            margin-bottom: 12px;
-        }
-
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 8px 12px;
-            background: rgba(7, 13, 25, 0.8);
-            border: 1px solid var(--glass-border);
-            border-radius: 8px;
-            color: #fff;
-            outline: none;
-        }
-
-        .btn-purple {
-            background: linear-gradient(90deg, var(--purple-glow), var(--cyan-glow));
-            color: #fff;
-            border: none;
-            padding: 10px;
-            border-radius: 8px;
-            font-family: 'Orbitron', sans-serif;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-        }
-
-        /* MODALES */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(8px);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-body {
-            background: #0f172a;
-            border: 1px solid var(--cyan-glow);
-            border-radius: 16px;
-            padding: 25px;
-            width: 90%;
-            max-width: 450px;
-            position: relative;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.3);
-        }
-
-        .modal-close {
-            position: absolute;
-            top: 15px; right: 20px;
-            color: #fff;
-            font-size: 1.5rem;
-            cursor: pointer;
-        }
-
-        .download-progress {
-            width: 100%;
-            height: 10px;
-            background: #1e293b;
-            border-radius: 5px;
-            overflow: hidden;
-            margin: 15px 0;
-            display: none;
-        }
-
-        .download-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--green-glow);
-            transition: width 0.1s;
-        }
-    </style>
+    .modal-content .switch-mode {
+      text-align: center;
+      margin-top: 10px;
+      font-size: 0.85rem;
+      color: var(--accent-blue);
+      cursor: pointer;
+    }
+  </style>
 </head>
 <body>
 
-    <!-- BARRA DE NAVEGACIÓN -->
-    <nav>
-        <a href="#" class="nav-brand">STORE YILBER</a>
-        
-        <ul class="nav-links">
-            <li><a href="#herramientas">Herramientas</a></li>
-            <li><a href="#comunicacion">Comunicación</a></li>
-            <li><a href="#juegos">Juegos</a></li>
-        </ul>
+  <!-- Encabezado -->
+  <header>
+    <div class="logo">STORE YILBER</div>
+    <div class="user-controls">
+      <span id="user-display" style="display:none; font-size: 0.9rem;"></span>
+      <button id="auth-btn" class="btn btn-primary" onclick="openModal()">Iniciar Sesión / Registro</button>
+      <button id="logout-btn" class="btn btn-danger" style="display:none;" onclick="logout()">Cerrar Sesión</button>
+    </div>
+  </header>
 
-        <div class="search-box">
-            <input type="text" id="searchInput" placeholder="🔍 Buscar aplicación..." onkeyup="filterApps()">
-        </div>
-
-        <button class="btn-auth" onclick="openAuthModal()">Iniciar Sesión</button>
-    </nav>
-
-    <div class="container">
-
-        <!-- DESTACADOS / BANNERS -->
-        <div class="hero-banner-grid">
-            <div class="banner-card">
-                <div>
-                    <div class="banner-title">Downloader Pro</div>
-                    <div class="banner-desc">Descarga directa de archivos y APKs a tu navegador.</div>
-                </div>
-                <button class="btn-green" onclick="openDownloadModal('Downloader Pro', 'V1.4 - APK Directo')">Descargar</button>
-            </div>
-
-            <div class="banner-card">
-                <div>
-                    <div class="banner-title">Snaptube HD</div>
-                    <div class="banner-desc">Descargador de música y videos en alta resolución.</div>
-                </div>
-                <button class="btn-green" onclick="openDownloadModal('Snaptube HD', 'V5.2 - APK Directo')">Descargar</button>
-            </div>
-
-            <div class="banner-card">
-                <div>
-                    <div class="banner-title">Google Play Store</div>
-                    <div class="banner-desc">Tienda oficial de servicios y aplicaciones.</div>
-                </div>
-                <button class="btn-green" onclick="openDownloadModal('Google Play Store', 'V38.9 - Oficial')">Descargar</button>
-            </div>
-        </div>
-
-        <!-- SECCIÓN 1: HERRAMIENTAS -->
-        <div id="herramientas" class="section-header">
-            <div class="section-title">⚙️ Aplicaciones de Herramientas</div>
-        </div>
-        <div class="app-grid" id="gridHerramientas">
-            
-            <div class="app-item" onclick="openDownloadModal('ZArchiver', 'Gestor de archivos comprimidos zip/rar')">
-                <div class="app-icon">ZA</div>
-                <div class="app-info">
-                    <div class="app-name">ZArchiver</div>
-                    <div class="app-dev">ZDevs</div>
-                    <div class="app-meta">⭐ 4.8 <span class="badge-cat">Herramienta</span></div>
-                </div>
-            </div>
-
-            <div class="app-item" onclick="openDownloadModal('Shizuku', 'Administrador de permisos del sistema')">
-                <div class="app-icon">SZ</div>
-                <div class="app-info">
-                    <div class="app-name">Shizuku</div>
-                    <div class="app-dev">Rikka</div>
-                    <div class="app-meta">⭐ 4.9 <span class="badge-cat">Herramienta</span></div>
-                </div>
-            </div>
-
-            <div class="app-item" onclick="openDownloadModal('Island', 'Aislamiento de espacio de trabajo')">
-                <div class="app-icon">IS</div>
-                <div class="app-info">
-                    <div class="app-name">Island</div>
-                    <div class="app-dev">Oasis Feng</div>
-                    <div class="app-meta">⭐ 4.7 <span class="badge-cat">Herramienta</span></div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- SECCIÓN 2: COMUNICACIÓN -->
-        <div id="comunicacion" class="section-header">
-            <div class="section-title">💬 Aplicaciones de Comunicación</div>
-        </div>
-        <div class="app-grid" id="gridComunicacion">
-
-            <div class="app-item" onclick="openDownloadModal('Telegram', 'Mensajería rápida y segura')">
-                <div class="app-icon" style="color:#38bdf8;">TG</div>
-                <div class="app-info">
-                    <div class="app-name">Telegram</div>
-                    <div class="app-dev">Telegram FZ-LLC</div>
-                    <div class="app-meta">⭐ 4.9 <span class="badge-cat">Social</span></div>
-                </div>
-            </div>
-
-            <div class="app-item" onclick="openDownloadModal('WhatsApp Business', 'Mensajería para negocios y personal')">
-                <div class="app-icon" style="color:#22c55e;">WA</div>
-                <div class="app-info">
-                    <div class="app-name">WhatsApp Business</div>
-                    <div class="app-dev">Meta LLC</div>
-                    <div class="app-meta">⭐ 4.8 <span class="badge-cat">Social</span></div>
-                </div>
-            </div>
-
-            <div class="app-item" onclick="openDownloadModal('Firefox Browser', 'Navegador privado y seguro')">
-                <div class="app-icon" style="color:#f97316;">FF</div>
-                <div class="app-info">
-                    <div class="app-name">Firefox Browser</div>
-                    <div class="app-dev">Mozilla</div>
-                    <div class="app-meta">⭐ 4.7 <span class="badge-cat">Navegador</span></div>
-                </div>
-            </div>
-
-        </div>
-
-        <!-- PANEL DE ADMINISTRACIÓN -->
-        <div class="admin-card">
-            <h2>⚙️ Publicar Nueva Aplicación (Panel Administrador)</h2>
-            <form id="addAppForm" onsubmit="addAppToStore(event)">
-                <div class="form-grid">
-                    <div class="form-group">
-                        <input type="text" id="newAppName" placeholder="Nombre de la App" required>
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="newAppDev" placeholder="Desarrollador (Ej: Yilber Dev)" required>
-                    </div>
-                    <div class="form-group">
-                        <select id="newAppCat">
-                            <option value="herramientas">Herramientas</option>
-                            <option value="comunicacion">Comunicación</option>
-                        </select>
-                    </div>
-                </div>
-                <button type="submit" class="btn-purple">Publicar en Store Yilber</button>
-            </form>
-        </div>
-
+  <!-- Contenido Principal -->
+  <main>
+    <div class="hero">
+      <h1>Descarga Software y Apps Exclusivas</h1>
+      <p>Proyectos para Android (APK) y Windows (PC)</p>
     </div>
 
-    <!-- MODAL DE DESCARGA -->
-    <div class="modal-overlay" id="downloadModal" onclick="closeModalOnOutside(event, 'downloadModal')">
-        <div class="modal-body">
-            <span class="modal-close" onclick="closeModal('downloadModal')">&times;</span>
-            <h3 id="modalAppName" style="font-family:'Orbitron'; color:var(--cyan-glow); margin-bottom:5px;">Nombre App</h3>
-            <p id="modalAppDesc" style="color:var(--text-muted); font-size:0.9rem; margin-bottom:15px;">Descripción corta de la app.</p>
-            
-            <div class="download-progress" id="progressContainer">
-                <div class="download-bar" id="progressBar"></div>
+    <!-- PANEL DE CONTROL SOLO PARA EL ADMIN -->
+    <section id="admin-panel">
+      <h2>⚡ Panel de Administración (Vista Exclusiva)</h2>
+      <form class="admin-form" id="add-app-form">
+        <input type="text" id="app-name" placeholder="Nombre de la App/Programa" required>
+        <select id="app-type" required>
+          <option value="android">Aplicación Android (APK)</option>
+          <option value="pc">Programa PC (Windows)</option>
+        </select>
+        <input type="text" id="app-version" placeholder="Versión (ej: 1.0)" required>
+        <input type="url" id="app-link" placeholder="Enlace de Descarga (URL)" required>
+        <input type="text" id="app-desc" placeholder="Descripción corta" style="grid-column: span 2;" required>
+        <button type="submit">Añadir Nuevo Software</button>
+      </form>
+    </section>
+
+    <!-- Sección Android -->
+    <h2 class="section-title">📱 Aplicaciones Android (APK)</h2>
+    <div class="app-grid" id="android-list">
+      <!-- Apps cargadas dinámicamente -->
+    </div>
+
+    <!-- Sección PC -->
+    <h2 class="section-title">💻 Programas PC (Microsoft)</h2>
+    <div class="app-grid" id="pc-list">
+      <!-- Programas cargados dinámicamente -->
+    </div>
+  </main>
+
+  <!-- Modal de Login / Registro -->
+  <div class="modal" id="auth-modal">
+    <div class="modal-content">
+      <h2 id="modal-title">Iniciar Sesión</h2>
+      <input type="email" id="auth-email" placeholder="Correo Electrónico">
+      <input type="password" id="auth-pass" placeholder="Contraseña">
+      <button id="auth-action-btn" class="btn btn-primary" style="width: 100%; margin-top: 10px;" onclick="handleAuth()">Entrar</button>
+      <div class="switch-mode" onclick="toggleAuthMode()" id="switch-text">¿No tienes cuenta? Regístrate aquí</div>
+      <button class="btn" style="width: 100%; margin-top: 10px; background: transparent; color: #aaa;" onclick="closeModal()">Cancelar</button>
+    </div>
+  </div>
+
+  <!-- Firebase Scripts (v9 Modular SDK via CDN) -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, addDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+
+    // ⚠️ REEMPLAZA ESTA CONFIGURACIÓN CON LA DE TU PROYECTO DE FIREBASE
+    const firebaseConfig = {
+      apiKey: "TU_API_KEY_AQUI",
+      authDomain: "TU_PROYECTO.firebaseapp.com",
+      projectId: "TU_PROYECTO_ID",
+      storageBucket: "TU_PROYECTO.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    // Inicializar Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    let isRegisterMode = false;
+
+    // Abrir/Cerrar Modal
+    window.openModal = () => document.getElementById('auth-modal').style.display = 'flex';
+    window.closeModal = () => document.getElementById('auth-modal').style.display = 'none';
+
+    window.toggleAuthMode = () => {
+      isRegisterMode = !isRegisterMode;
+      document.getElementById('modal-title').innerText = isRegisterMode ? 'Crear Cuenta' : 'Iniciar Sesión';
+      document.getElementById('auth-action-btn').innerText = isRegisterMode ? 'Registrarme' : 'Entrar';
+      document.getElementById('switch-text').innerText = isRegisterMode ? '¿Ya tienes cuenta? Inicia sesión' : '¿No tienes cuenta? Regístrate aquí';
+    };
+
+    // Manejar Registro / Login
+    window.handleAuth = async () => {
+      const email = document.getElementById('auth-email').value;
+      const pass = document.getElementById('auth-pass').value;
+
+      if (!email || !pass) return alert('Por favor llena todos los campos.');
+
+      try {
+        if (isRegisterMode) {
+          // Registrar nuevo usuario
+          const userCredential = await createUserWithEmailAndPassword(auth, email, pass);
+          const user = userCredential.user;
+
+          // Guardar en la base de datos Firestore (Por defecto rol 'user')
+          await setDoc(doc(db, "users", user.uid), {
+            email: user.email,
+            role: "user",
+            createdAt: new Date()
+          });
+          alert('¡Cuenta registrada exitosamente!');
+        } else {
+          // Iniciar sesión
+          await signInWithEmailAndPassword(auth, email, pass);
+        }
+        closeModal();
+      } catch (error) {
+        alert("Error: " + error.message);
+      }
+    };
+
+    // Cerrar Sesión
+    window.logout = () => signOut(auth);
+
+    // Escuchar el Estado de la Sesión (Determina si es Admin o Usuario)
+    onAuthStateChanged(auth, async (user) => {
+      const userDisplay = document.getElementById('user-display');
+      const authBtn = document.getElementById('auth-btn');
+      const logoutBtn = document.getElementById('logout-btn');
+      const adminPanel = document.getElementById('admin-panel');
+
+      if (user) {
+        userDisplay.style.display = 'inline';
+        userDisplay.innerText = `👤 ${user.email}`;
+        authBtn.style.display = 'none';
+        logoutBtn.style.display = 'inline-block';
+
+        // Verificar el Rol en Firestore
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists() && userDoc.data().role === 'admin') {
+          adminPanel.style.display = 'block'; // Muestra panel si es Admin
+        } else {
+          adminPanel.style.display = 'none';
+        }
+      } else {
+        userDisplay.style.display = 'none';
+        authBtn.style.display = 'inline-block';
+        logoutBtn.style.display = 'none';
+        adminPanel.style.display = 'none';
+      }
+    });
+
+    // Añadir nuevo programa (Función de Admin)
+    document.getElementById('add-app-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      try {
+        await addDoc(collection(db, "downloads"), {
+          name: document.getElementById('app-name').value,
+          type: document.getElementById('app-type').value,
+          version: document.getElementById('app-version').value,
+          link: document.getElementById('app-link').value,
+          desc: document.getElementById('app-desc').value,
+          createdAt: new Date()
+        });
+        alert('¡Programa publicado con éxito!');
+        document.getElementById('add-app-form').reset();
+      } catch (err) {
+        alert('Error al publicar: ' + err.message);
+      }
+    });
+
+    // Cargar Aplicaciones en tiempo real desde Firestore
+    onSnapshot(collection(db, "downloads"), (snapshot) => {
+      const androidList = document.getElementById('android-list');
+      const pcList = document.getElementById('pc-list');
+
+      androidList.innerHTML = '';
+      pcList.innerHTML = '';
+
+      snapshot.forEach((doc) => {
+        const item = doc.data();
+        const cardHtml = `
+          <div class="card">
+            <div>
+              <h3>${item.name}</h3>
+              <div class="version">Versión ${item.version}</div>
+              <p>${item.desc}</p>
             </div>
+            <a href="${item.link}" target="_blank" class="btn btn-primary" style="text-align:center; text-decoration:none;">Descargar</a>
+          </div>
+        `;
 
-            <button class="btn-green" id="btnStartDownload" style="width:100%; padding:10px;" onclick="startDownloadProcess()">Descargar APK Seguro</button>
-        </div>
-    </div>
-
-    <!-- MODAL DE SESIÓN -->
-    <div class="modal-overlay" id="authModal" onclick="closeModalOnOutside(event, 'authModal')">
-        <div class="modal-body">
-            <span class="modal-close" onclick="closeModal('authModal')">&times;</span>
-            <h3 style="font-family:'Orbitron'; color:var(--cyan-glow); margin-bottom:15px; text-align:center;">Iniciar Sesión</h3>
-            <form onsubmit="event.preventDefault(); alert('¡Sesión iniciada correctamente!'); closeModal('authModal');">
-                <div class="form-group" style="margin-bottom:10px;">
-                    <input type="email" placeholder="Correo electrónico" required style="width:100%; padding:8px; background:#070d19; border:1px solid var(--glass-border); color:#fff; border-radius:6px;">
-                </div>
-                <div class="form-group" style="margin-bottom:15px;">
-                    <input type="password" placeholder="Contraseña" required style="width:100%; padding:8px; background:#070d19; border:1px solid var(--glass-border); color:#fff; border-radius:6px;">
-                </div>
-                <button type="submit" class="btn-purple">Entrar</button>
-            </form>
-        </div>
-    </div>
-
-    <script>
-        // FUNCIÓN BUSCADOR EN TIEMPO REAL
-        function filterApps() {
-            const query = document.getElementById('searchInput').value.toLowerCase();
-            const apps = document.querySelectorAll('.app-item');
-
-            apps.forEach(app => {
-                const name = app.querySelector('.app-name').innerText.toLowerCase();
-                const dev = app.querySelector('.app-dev').innerText.toLowerCase();
-                if (name.includes(query) || dev.includes(query)) {
-                    app.style.display = 'flex';
-                } else {
-                    app.style.display = 'none';
-                }
-            });
+        if (item.type === 'android') {
+          androidList.innerHTML += cardHtml;
+        } else {
+          pcList.innerHTML += cardHtml;
         }
-
-        // CONTROL DE MODALES
-        function openDownloadModal(name, desc) {
-            document.getElementById('modalAppName').innerText = name;
-            document.getElementById('modalAppDesc').innerText = desc;
-            document.getElementById('progressContainer').style.display = 'none';
-            document.getElementById('progressBar').style.width = '0%';
-            document.getElementById('btnStartDownload').style.display = 'block';
-            document.getElementById('btnStartDownload').innerText = 'Descargar APK Seguro';
-            document.getElementById('downloadModal').style.display = 'flex';
-        }
-
-        function openAuthModal() {
-            document.getElementById('authModal').style.display = 'flex';
-        }
-
-        function closeModal(modalId) {
-            document.getElementById(modalId).style.display = 'none';
-        }
-
-        function closeModalOnOutside(event, modalId) {
-            if (event.target.id === modalId) {
-                closeModal(modalId);
-            }
-        }
-
-        // SIMULADOR DE DESCARGA
-        function startDownloadProcess() {
-            const btn = document.getElementById('btnStartDownload');
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBar = document.getElementById('progressBar');
-
-            btn.style.display = 'none';
-            progressContainer.style.display = 'block';
-
-            let width = 0;
-            const interval = setInterval(() => {
-                if (width >= 100) {
-                    clearInterval(interval);
-                    progressContainer.style.display = 'none';
-                    btn.style.display = 'block';
-                    btn.innerText = '✅ ¡Descarga Completada!';
-                    btn.style.background = 'var(--cyan-glow)';
-                } else {
-                    width += 5;
-                    progressBar.style.width = width + '%';
-                }
-            }, 80);
-        }
-
-        // AGREGAR APP DINÁMICAMENTE
-        function addAppToStore(e) {
-            e.preventDefault();
-            const name = document.getElementById('newAppName').value;
-            const dev = document.getElementById('newAppDev').value;
-            const cat = document.getElementById('newAppCat').value;
-
-            const initials = name.substring(0, 2).toUpperCase();
-
-            const appCard = document.createElement('div');
-            appCard.className = 'app-item';
-            appCard.onclick = () => openDownloadModal(name, `Aplicación publicada por ${dev}`);
-            appCard.innerHTML = `
-                <div class="app-icon">${initials}</div>
-                <div class="app-info">
-                    <div class="app-name">${name}</div>
-                    <div class="app-dev">${dev}</div>
-                    <div class="app-meta">⭐ 5.0 <span class="badge-cat">${cat}</span></div>
-                </div>
-            `;
-
-            if (cat === 'herramientas') {
-                document.getElementById('gridHerramientas').appendChild(appCard);
-            } else {
-                document.getElementById('gridComunicacion').appendChild(appCard);
-            }
-
-            document.getElementById('addAppForm').reset();
-            alert('¡Aplicación agregada exitosamente a la tienda!');
-        }
-    </script>
+      });
+    });
+  </script>
 </body>
 </html>
