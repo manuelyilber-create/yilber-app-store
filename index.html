@@ -23,7 +23,7 @@
         }
 
         body {
-            /* NUEVO FONDO CIBERNÉTICO SUBIDO POR TI */
+            /* FONDO CIBERNÉTICO */
             background-image: url('fondo-store.png');
             background-size: cover;
             background-position: center;
@@ -76,26 +76,30 @@
             box-shadow: 0 0 20px rgba(139, 92, 246, 0.7);
         }
 
-        /* ENCABEZADO Y TÍTULO */
+        /* ENCABEZADO CON EL LOGO DE ANDROIDES */
         .hero {
             text-align: center;
             padding: 2.5rem 1rem 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
-        .hero h1 {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 2.4rem;
-            font-weight: 900;
-            color: #ffffff;
-            text-shadow: 0 0 20px rgba(56, 189, 248, 0.8);
-            letter-spacing: 1px;
+        .hero-logo {
+            max-width: 480px;
+            width: 90%;
+            height: auto;
+            filter: drop-shadow(0 0 20px rgba(56, 189, 248, 0.5));
+            margin-bottom: 0.8rem;
+            border-radius: 12px;
         }
 
         .hero p {
             color: #cbd5e1;
-            font-size: 1.1rem;
-            margin-top: 0.5rem;
+            font-size: 1.15rem;
+            margin-top: 0.3rem;
             font-weight: 500;
+            text-shadow: 0 0 8px rgba(0,0,0,0.8);
         }
 
         /* CONTENEDOR PRINCIPAL */
@@ -196,7 +200,6 @@
         }
 
         .section-title.android { color: var(--green-glow); text-shadow: 0 0 10px rgba(34, 197, 94, 0.4); }
-        .section-title.pc { color: var(--cyan-glow); text-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
 
         .app-grid {
             display: grid;
@@ -305,7 +308,8 @@
     </nav>
 
     <div class="hero">
-        <h1>STORE YILBER</h1>
+        <!-- LOGO STORE YILBER -->
+        <img src="logo-store.png" alt="Store Yilber Logo" class="hero-logo">
         <p>Descarga Software, Juegos y Apps Exclusivas con IA Integrada</p>
     </div>
 
@@ -352,9 +356,8 @@
         <!-- SECCIÓN DE APPS -->
         <div class="section-title android">📱 Aplicaciones y Software Disponibles</div>
         <div class="app-grid" id="appGrid">
-            <!-- Ejemplo estático de muestra -->
             <div class="app-card">
-                <img src="https://via.placeholder.com/80/38bdf8/040814?text=YILBER" alt="App">
+                <img src="logo-store.png" alt="App">
                 <h3>Yilber App Premium</h3>
                 <span class="category">Android (.APK)</span>
                 <a href="#" class="btn-download">Descargar APK</a>
@@ -375,97 +378,5 @@
         </div>
     </div>
 
-    <!-- FIREBASE SDKs -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-storage-compat.js"></script>
-
-    <script>
-        // REEMPLAZA ESTOS DATOS CUANDO TENGAS TU PROYECTO DE FIREBASE CONFIGURADO
-        const firebaseConfig = {
-            apiKey: "TU_API_KEY",
-            authDomain: "TU_PROJECT.firebaseapp.com",
-            projectId: "TU_PROJECT",
-            storageBucket: "TU_PROJECT.appspot.com",
-            messagingSenderId: "123456789",
-            appId: "1:123456789:web:123456"
-        };
-
-        // Inicializar Firebase si los datos existen
-        try {
-            firebase.initializeApp(firebaseConfig);
-            const db = firebase.firestore();
-            const storage = firebase.storage();
-
-            const uploadForm = document.getElementById('uploadForm');
-            const btnSubmit = document.getElementById('btnSubmit');
-            const progressContainer = document.getElementById('progressContainer');
-            const progressBar = document.getElementById('progressBar');
-            const appGrid = document.getElementById('appGrid');
-
-            uploadForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const name = document.getElementById('appName').value;
-                const category = document.getElementById('appCategory').value;
-                const logoFile = document.getElementById('appLogo').files[0];
-                const apkFile = document.getElementById('appFile').files[0];
-
-                btnSubmit.disabled = true;
-                btnSubmit.innerText = "Subiendo archivo...";
-                progressContainer.style.display = "block";
-
-                try {
-                    const logoRef = storage.ref(`logos/${Date.now()}_${logoFile.name}`);
-                    await logoRef.put(logoFile);
-                    const logoUrl = await logoRef.getDownloadURL();
-
-                    const fileRef = storage.ref(`apps/${Date.now()}_${apkFile.name}`);
-                    const uploadTask = fileRef.put(apkFile);
-
-                    uploadTask.on('state_changed', 
-                        (snapshot) => {
-                            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                            progressBar.style.width = progress + '%';
-                        }, 
-                        (error) => alert('Error: ' + error.message), 
-                        async () => {
-                            const fileUrl = await fileRef.getDownloadURL();
-                            await db.collection('apps').add({
-                                name, category, logoUrl, fileUrl,
-                                timestamp: firebase.firestore.FieldValue.serverTimestamp()
-                            });
-                            alert('¡Publicado con éxito!');
-                            uploadForm.reset();
-                            progressBar.style.width = '0%';
-                            progressContainer.style.display = "none";
-                            btnSubmit.disabled = false;
-                            btnSubmit.innerText = "Publicar en la Tienda";
-                        }
-                    );
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                    btnSubmit.disabled = false;
-                }
-            });
-
-            db.collection('apps').orderBy('timestamp', 'desc').onSnapshot((snapshot) => {
-                appGrid.innerHTML = '';
-                snapshot.forEach((doc) => {
-                    const app = doc.data();
-                    const card = document.createElement('div');
-                    card.className = 'app-card';
-                    card.innerHTML = `
-                        <img src="${app.logoUrl}" alt="${app.name}">
-                        <h3>${app.name}</h3>
-                        <span class="category">${app.category}</span>
-                        <a href="${app.fileUrl}" class="btn-download" download target="_blank">Descargar</a>
-                    `;
-                    appGrid.appendChild(card);
-                });
-            });
-        } catch(e) {
-            console.log("Firebase no configurado aún.");
-        }
-    </script>
 </body>
 </html>
