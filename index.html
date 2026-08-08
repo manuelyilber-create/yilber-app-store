@@ -2,302 +2,558 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Prototipo Terraria 2D con Enemigos</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mini Terraria Pro Mobile</title>
     <style>
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
         body {
-            background-color: #1a1a1a;
-            color: white;
-            font-family: Arial, sans-serif;
-            text-align: center;
+            background-color: #0d0d0d;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            overflow: hidden;
+            touch-action: none;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100vw;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
         canvas {
-            /* Fondo de cielo/cuevas que cambia según la altura */
-            background: linear-gradient(to bottom, #87CEEB 40%, #355C7D 100%);
             display: block;
-            margin: 20px auto;
-            border: 4px solid #333;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            background: linear-gradient(to bottom, #4da6ff 0%, #b3d9ff 50%, #80bfff 100%);
+            box-shadow: 0 0 30px rgba(0,0,0,0.8);
         }
+        /* UI Superior */
+        .top-hud {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .hud-box {
+            background: rgba(0, 0, 0, 0.6);
+            border: 2px solid #555;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            pointer-events: auto;
+        }
+        .btn-hud {
+            background: #2a2a2a;
+            border: 1px solid #777;
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-hud:active { background: #444; }
+
+        /* Controles Táctiles en Pantalla */
+        .controls-layer {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            display: flex;
+            justify-content: space-between;
+            pointer-events: none;
+            z-index: 10;
+        }
+        .control-group {
+            display: flex;
+            gap: 10px;
+            pointer-events: auto;
+        }
+        .t-btn {
+            width: 65px;
+            height: 65px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            color: white;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+        .t-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(0.95);
+        }
+
+        /* Menús Modales (Pausa, Inventario, Configuración) */
+        .modal {
+            display: none;
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            z-index: 100;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+        }
+        .modal-content {
+            background: #1e1e1e;
+            border: 3px solid #444;
+            border-radius: 12px;
+            padding: 20px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+        }
+        .modal-content h2 { margin-top: 0; color: #ffcc00; }
+        .modal-btn {
+            display: block;
+            width: 100%;
+            background: #333;
+            color: white;
+            border: 2px solid #555;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .modal-btn:active { background: #555; }
+        
+        /* Inventario de Cuadrículas */
+        .inventory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin: 15px 0;
+        }
+        .inv-slot {
+            width: 60px;
+            height: 60px;
+            background: #2b2b2b;
+            border: 2px solid #555;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            cursor: pointer;
+            position: relative;
+        }
+        .inv-slot.selected { border-color: #ffcc00; background: #3b3b2b; }
+        .inv-slot span { font-size: 20px; }
     </style>
 </head>
 <body>
 
-    <h1>Mini Terraria 2D: Enemigos</h1>
-    <p>Usa **A y D** para moverte, **W o Espacio** para saltar. Haz **clic** para romper bloques.</p>
-    <p>¡Cuidado con los monstruos! (Verdes: Nivel 5, Rojos: Nivel 10)</p>
-    
-    <canvas id="gameCanvas" width="800" height="500"></canvas>
+<div id="gameContainer">
+    <!-- HUD Superior -->
+    <div class="top-hud">
+        <div class="hud-box">
+            <div>❤️ <span id="txtHp">100</span></div>
+            <div>⭐ Lv.<span id="txtLv">1</span></div>
+            <div>✨ EXP: <span id="txtExp">0</span>/100</div>
+        </div>
+        <div class="hud-box" style="gap: 5px;">
+            <button class="btn-hud" onclick="openModal('inventoryModal')">🎒 Bolso</button>
+            <button class="btn-hud" onclick="openModal('settingsModal')">⚙️ Config</button>
+            <button class="btn-hud" onclick="togglePause()">⏸️</button>
+        </div>
+    </div>
 
-    <script>
-        const canvas = document.getElementById("gameCanvas");
-        const ctx = canvas.getContext("2d");
+    <!-- Canvas Principal -->
+    <canvas id="gameCanvas" width="800" height="450"></canvas>
 
-        // --- Configuración del mundo ---
-        const tileSize = 40;
-        const cols = canvas.width / tileSize;
-        const rows = canvas.height / tileSize;
-        let world = [];
+    <!-- Controles Táctiles -->
+    <div class="controls-layer">
+        <div class="control-group">
+            <div class="t-btn" id="btnLeft">◀</div>
+            <div class="t-btn" id="btnRight">▶</div>
+        </div>
+        <div class="control-group">
+            <div class="t-btn" id="btnAction" style="background: rgba(180, 50, 50, 0.5);">⚔️</div>
+            <div class="t-btn" id="btnPower" style="background: rgba(50, 100, 180, 0.5);">⚡</div>
+            <div class="t-btn" id="btnJump">▲</div>
+        </div>
+    </div>
+</div>
 
-        // Generar mundo básico con colinas
-        for (let r = 0; r < rows; r++) {
+<!-- Modal de Pausa / Opciones de Guardado -->
+<div id="settingsModal" class="modal">
+    <div class="modal-content">
+        <h2>Configuración</h2>
+        <button class="modal-btn" onclick="saveGame()">💾 Guardar Partida</button>
+        <button class="modal-btn" onclick="loadGame()">📂 Cargar Partida</button>
+        <div style="margin: 15px 0; text-align: left;">
+            <label><input type="checkbox" id="chkSound" checked onchange="toggleSound()"> Sonido y Efectos</label>
+        </div>
+        <button class="modal-btn" style="background: #a93226;" onclick="closeModal('settingsModal')">Cerrar</button>
+    </div>
+</div>
+
+<!-- Modal de Inventario / Bolso -->
+<div id="inventoryModal" class="modal">
+    <div class="modal-content" style="max-width: 320px;">
+        <h2>Inventario / Bolso</h2>
+        <p style="font-size: 13px; color: #aaa;">Selecciona herramienta o elemento:</p>
+        <div class="inventory-grid" id="inventoryGrid">
+            <!-- Generado por Dinámica JS -->
+        </div>
+        <button class="modal-btn" onclick="closeModal('inventoryModal')">Cerrar Bolso</button>
+    </div>
+</div>
+
+<!-- Modal de Pausa Activa -->
+<div id="pauseModal" class="modal">
+    <div class="modal-content">
+        <h2>Juego en Pausa</h2>
+        <button class="modal-btn" onclick="togglePause()">Reanudar</button>
+        <button class="modal-btn" onclick="openModal('settingsModal')">Configuración</button>
+        <button class="modal-btn" onclick="saveGame()">Guardar Partida</button>
+    </div>
+</div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Configuración del Mundo Gigante
+    const tileSize = 32;
+    const worldCols = 150; // Mundo ancho
+    const worldRows = 45;
+    let world = [];
+
+    // Estado del Juego
+    let isPaused = false;
+    let soundEnabled = true;
+
+    // Jugador (Estilo Terraria adaptado)
+    let player = {
+        x: 200, y: 300,
+        width: 24, height: 42,
+        vx: 0, vy: 0,
+        speed: 3.5, jumpForce: -10, gravity: 0.5,
+        grounded: false,
+        hp: 100, maxHp: 100,
+        level: 1, exp: 0, nextExp: 100,
+        facing: 1, // 1: Derecha, -1: Izquierda
+        selectedTool: 'pico', // pico, martillo, espada
+        powerCooldown: 0,
+        danceTimer: 0,
+        isDancing: false
+    };
+
+    // Inventario / Bolso
+    let inventory = [
+        { id: 'pico', name: 'Pico', icon: '⛏️', count: 1, type: 'tool' },
+        { id: 'martillo', name: 'Martillo', icon: '🔨', count: 1, type: 'tool' },
+        { id: 'espada', name: 'Espada', icon: '🗡️', count: 1, type: 'tool' },
+        { id: 'tierra', name: 'Bloque Tierra', icon: '🟫', count: 25, type: 'block' },
+        { id: 'pasto', name: 'Bloque Pasto', icon: '🟩', count: 10, type: 'block' },
+        { id: 'madera', name: 'Madera', icon: '🪵', count: 5, type: 'block' },
+    ];
+    let selectedInvIndex = 0;
+
+    // Entidades del Mundo (Animales y Monstruos)
+    let entities = [];
+    let particles = [];
+    let clouds = [];
+
+    // Inicializar Sonido Web Audio API simple
+    let audioCtx = null;
+    function playSound(type) {
+        if (!soundEnabled) return;
+        try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            let osc = audioCtx.createOscillator();
+            let gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            
+            let now = audioCtx.currentTime;
+            if (type === 'jump') {
+                osc.frequency.setValueAtTime(150, now);
+                osc.frequency.exponentialRampToValueAtTime(300, now + 0.15);
+                gain.gain.setValueAtTime(0.1, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
+                osc.start(now); osc.stop(now + 0.15);
+            } else if (type === 'hit') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(100, now);
+                osc.frequency.linearRampToValueAtTime(40, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                osc.start(now); osc.stop(now + 0.2);
+            } else if (type === 'power') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(300, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.3);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                osc.start(now); osc.stop(now + 0.3);
+            }
+        } catch(e) {}
+    }
+
+    // Generar Mundo Completo (Pasto real, Tierra, Piedra, Agua y Capas)
+    function generateWorld() {
+        world = [];
+        for (let r = 0; r < worldRows; r++) {
             let row = [];
-            for (let c = 0; c < cols; c++) {
-                // Nivel base del suelo
-                if (r > 10) {
-                    row.push(1); // Tierra
+            for (let c = 0; c < worldCols; c++) {
+                // 0: Aire, 1: Pasto, 2: Tierra, 3: Piedra, 4: Agua
+                if (r < 18) {
+                    row.push(0);
+                } else if (r === 18) {
+                    row.push(1); // Superficie con Pasto
+                } else if (r > 18 && r < 25) {
+                    // Generar lagos o depresiones con agua
+                    if (c > 45 && c < 60 && r >= 20) {
+                        row.push(4); // Agua
+                    } else {
+                        row.push(2); // Tierra
+                    }
                 } else {
-                    row.push(0); // Aire
+                    row.push(3); // Piedra profunda
                 }
             }
             world.push(row);
         }
-        
-        // Crear un par de cuevas aleatorias
-        for (let i = 0; i < 3; i++) {
-            let startR = Math.floor(Math.random() * 5) + 12;
-            let startC = Math.floor(Math.random() * (cols - 10)) + 5;
-            for (let cr = 0; cr < 3; cr++) {
-                for (let cc = 0; cc < 6; cc++) {
-                    if (startR + cr < rows && startC + cc < cols) {
-                        world[startR + cr][startC + cc] = 0;
-                    }
+
+        // Generar Nubes en el cielo
+        clouds = [];
+        for (let i = 0; i < 12; i++) {
+            clouds.push({
+                x: Math.random() * (worldCols * tileSize),
+                y: Math.random() * (12 * tileSize),
+                width: 80 + Math.random() * 60,
+                speed: 0.2 + Math.random() * 0.3
+            });
+        }
+
+        // Generar Animales (Gallinas, Pollos, Aves) y Monstruos
+        entities = [];
+        for (let i = 0; i < 8; i++) {
+            entities.push({
+                type: Math.random() > 0.4 ? 'gallina' : 'pollo',
+                x: 300 + Math.random() * 2000,
+                y: 17 * tileSize,
+                width: 20, height: 20,
+                vx: (Math.random() - 0.5) * 1.5, vy: 0,
+                hp: 20, level: 1, direction: 1, timer: 0
+            });
+        }
+        // Añadir monstruos de nivel 5 y 10
+        entities.push({ type: 'monstruo5', x: 800, y: 15 * tileSize, width: 28, height: 35, vx: 1, vy: 0, hp: 60, level: 5, direction: 1, aggro: false });
+        entities.push({ type: 'monstruo10', x: 1500, y: 15 * tileSize, width: 34, height: 42, vx: -1.5, vy: 0, hp: 120, level: 10, direction: -1, aggro: false });
+    }
+
+    // Controles por Teclado y Táctiles
+    let keys = {};
+    window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
+    window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+    function setupTouchButton(id, keyName) {
+        const btn = document.getElementById(id);
+        if(!btn) return;
+        btn.addEventListener('touchstart', (e) => { e.preventDefault(); keys[keyName] = true; });
+        btn.addEventListener('touchend', (e) => { e.preventDefault(); keys[keyName] = false; });
+        btn.addEventListener('mousedown', (e) => { e.preventDefault(); keys[keyName] = true; });
+        btn.addEventListener('mouseup', (e) => { e.preventDefault(); keys[keyName] = false; });
+    }
+    setupTouchButton('btnLeft', 'a');
+    setupTouchButton('btnRight', 'd');
+    setupTouchButton('btnJump', 'w');
+    
+    document.getElementById('btnAction').addEventListener('click', () => { playerAction(); });
+    document.getElementById('btnPower').addEventListener('click', () => { swordPower(); });
+
+    // Fisica y Colisiones con el Mundo
+    function checkCollision(nx, ny, w, h) {
+        let left = Math.floor(nx / tileSize);
+        let right = Math.floor((nx + w - 1) / tileSize);
+        let top = Math.floor(ny / tileSize);
+        let bottom = Math.floor((ny + h - 1) / tileSize);
+
+        if (left < 0 || right >= worldCols || top < 0 || bottom >= worldRows) return true;
+
+        for (let r = top; r <= bottom; r++) {
+            for (let c = left; c <= right; c++) {
+                if (world[r] && world[r][c] !== 0 && world[r][c] !== 4) return true;
+            }
+        }
+        return false;
+    }
+
+    function checkWater(nx, ny, w, h) {
+        let cx = Math.floor((nx + w/2) / tileSize);
+        let cy = Math.floor((ny + h/2) / tileSize);
+        if (cx >= 0 && cx < worldCols && cy >= 0 && cy < worldRows) {
+            return world[cy][cx] === 4;
+        }
+        return false;
+    }
+
+    // Acción del Jugador (Pico / Martillo / Espada)
+    function playerAction() {
+        let targetX = player.x + (player.facing * 35);
+        let targetY = player.y + 20;
+        let c = Math.floor(targetX / tileSize);
+        let r = Math.floor(targetY / tileSize);
+
+        if (player.selectedTool === 'pico') {
+            if (r >= 0 && r < worldRows && c >= 0 && c < worldCols) {
+                if (world[r][c] !== 0 && world[r][c] !== 4) {
+                    let blockType = world[r][c];
+                    world[r][c] = 0;
+                    playSound('hit');
+                    addExp(5);
                 }
             }
+        } else if (player.selectedTool === 'espada') {
+            playSound('hit');
+            // Atacar entidades cercanas
+            entities.forEach(en => {
+                let dist = Math.hypot((en.x + en.width/2) - (player.x + player.width/2), (en.y + en.height/2) - (player.y + player.height/2));
+                if (dist < 50) {
+                    en.hp -= (25 + player.level * 5);
+                    if (en.hp <= 0) addExp(en.level * 20);
+                }
+            });
         }
+    }
 
-        // --- Jugador ---
-        let player = {
-            x: 100, y: 300,
-            width: 30, height: 50,
-            vx: 0, vy: 0,
-            speed: 5, jumpForce: -12, gravity: 0.6,
-            grounded: false,
-            health: 100
-        };
-
-        // --- Enemigos ---
-        let enemies = [];
+    // Poder Especial de la Espada (Onda de Energía / Corte Gigante)
+    function swordPower() {
+        if (player.powerCooldown > 0) return;
+        player.powerCooldown = 120; // 2 segundos a 60fps
+        playSound('power');
         
-        function spawnEnemy(type) {
-            let enemy = {
-                width: 30, height: 40,
-                vx: 0, vy: 0,
-                gravity: 0.6,
-                grounded: false,
-                patrolTime: 0, // Temporizador para cambiar de dirección
-                direction: 1, // 1 = derecha, -1 = izquierda
-                target: null // Jugador al que perseguir
-            };
-
-            if (type === 'weak') {
-                // Nivel 5: Lento, menos daño
-                enemy.level = 5;
-                enemy.speed = 2;
-                enemy.color = '#228B22'; // Verde Bosque
-                enemy.health = 50;
-            } else if (type === 'strong') {
-                // Nivel 10: Rápido, más peligroso
-                enemy.level = 10;
-                enemy.speed = 4;
-                enemy.color = '#B22222'; // Rojo Ladrillo
-                enemy.health = 150;
-            }
-
-            // Aparecer en un lugar aleatorio (más o menos en el suelo)
-            enemy.x = Math.random() * (canvas.width - enemy.width);
-            enemy.y = 300; 
-
-            enemies.push(enemy);
-        }
-
-        // Generar algunos monstruos iniciales
-        spawnEnemy('weak'); // Verde Lv 5
-        spawnEnemy('weak'); // Verde Lv 5
-        spawnEnemy('strong');// Rojo Lv 10
-
-        // --- Controles ---
-        let keys = {};
-        window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
-        window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
-
-        // --- Interfaz del Ratón ---
-        canvas.addEventListener("click", (e) => {
-            const rect = canvas.getBoundingClientRect();
-            const mouseX = e.clientX - rect.left;
-            const mouseY = e.clientY - rect.top;
-            const c = Math.floor(mouseX / tileSize);
-            const r = Math.floor(mouseY / tileSize);
-            // Romper bloque
-            if (r >= 0 && r < rows && c >= 0 && c < cols) {
-                world[r][c] = 0;
-            }
+        // Crear onda destructiva
+        particles.push({
+            x: player.x + (player.facing > 0 ? player.width : -40),
+            y: player.y + 10,
+            vx: player.facing * 8,
+            vy: 0,
+            life: 30,
+            type: 'wave'
         });
 
-        // --- Físicas y Colisiones Genéricas ---
-        function resolvePhysics(entity) {
-            // Gravedad
-            entity.vy += entity.gravity;
-
-            // Colisión X
-            entity.x += entity.vx;
-            if (checkWorldCollision(entity)) {
-                entity.x -= entity.vx;
-                if (entity.vx !== 0) entity.direction *= -1; // Girar al chocar pared
+        // Dañar enemigos en línea recta
+        entities.forEach(en => {
+            let dx = en.x - player.x;
+            if (player.facing > 0 && dx > 0 && dx < 200 || player.facing < 0 && dx < 0 && dx > -200) {
+                en.hp -= 50 + (player.level * 10);
+                if (en.hp <= 0) addExp(en.level * 30);
             }
+        });
+    }
 
-            // Colisión Y
-            entity.y += entity.vy;
-            entity.grounded = false;
-            if (checkWorldCollision(entity)) {
-                entity.y -= entity.vy;
-                if (entity.vy > 0) entity.grounded = true;
-                entity.vy = 0;
-            }
+    function addExp(amount) {
+        player.exp += amount;
+        if (player.exp >= player.nextExp) {
+            player.exp -= player.nextExp;
+            player.level++;
+            player.maxHp += 20;
+            player.hp = player.maxHp;
+            player.nextExp = Math.floor(player.nextExp * 1.5);
+        }
+        updateHUD();
+    }
 
-            // Limites del canvas
-            if (entity.x < 0) { entity.x = 0; entity.direction = 1; }
-            if (entity.x > canvas.width - entity.width) { entity.x = canvas.width - entity.width; entity.direction = -1; }
+    // Actualización de Lógica Principal
+    function update() {
+        if (isPaused) return;
+
+        // Movimiento Jugador
+        player.vx = 0;
+        if (keys['a'] || keys['arrowleft']) { player.vx = -player.speed; player.facing = -1; }
+        if (keys['d'] || keys['arrowright']) { player.vx = player.speed; player.facing = 1; }
+
+        let inWater = checkWater(player.x, player.y, player.width, player.height);
+        let currentGravity = inWater ? 0.2 : player.gravity;
+        let currentJump = inWater ? -6 : player.jumpForce;
+
+        if ((keys['w'] || keys[' '] || keys['arrowup']) && (player.grounded || inWater)) {
+            player.vy = currentJump;
+            player.grounded = false;
+            if(!inWater) playSound('jump');
         }
 
-        function checkWorldCollision(entity) {
-            let left = Math.floor(entity.x / tileSize);
-            let right = Math.floor((entity.x + entity.width - 1) / tileSize);
-            let top = Math.floor(entity.y / tileSize);
-            let bottom = Math.floor((entity.y + entity.height - 1) / tileSize);
+        player.vy += currentGravity;
+        if (inWater) player.vy *= 0.85; // Fricción del agua
 
-            if (left < 0 || right >= cols || top < 0 || bottom >= rows) return true;
-
-            for (let r = top; r <= bottom; r++) {
-                for (let c = left; c <= right; c++) {
-                    if (world[r] && world[r][c] !== 0) return true;
-                }
-            }
-            return false;
+        // Físicas X
+        player.x += player.vx;
+        if (checkCollision(player.x, player.y, player.width, player.height)) {
+            player.x -= player.vx;
         }
 
-        // --- IA de Enemigos ---
-        function updateEnemies() {
-            enemies.forEach(enemy => {
-                // Calcular distancia al jugador
-                let dx = player.x - enemy.x;
-                let dist = Math.sqrt(dx*dx + (player.y - enemy.y)*(player.y - enemy.y));
+        // Físicas Y
+        player.y += player.vy;
+        player.grounded = false;
+        if (checkCollision(player.x, player.y, player.width, player.height)) {
+            player.y -= player.vy;
+            if (player.vy > 0) player.grounded = true;
+            player.vy = 0;
+        }
 
-                // Lógica de IA: Si está a menos de 250 píxeles, perseguir. Si no, patrullar.
-                if (dist < 250) {
-                    // Perseguir
-                    enemy.vx = (dx > 0) ? enemy.speed : -enemy.speed;
-                    
-                    // Saltar si hay un obstáculo delante mientras persigue
-                    if (Math.random() < 0.05 && enemy.grounded && checkObstacleAhead(enemy)) {
-                        enemy.vy = enemy.jumpForce;
-                    }
+        // Limites de mapa
+        if (player.x < 0) player.x = 0;
+        if (player.x > (worldCols * tileSize) - player.width) player.x = (worldCols * tileSize) - player.width;
+
+        if (player.powerCooldown > 0) player.powerCooldown--;
+
+        // Nubes movimiento
+        clouds.forEach(cl => {
+            cl.x += cl.speed;
+            if (cl.x > worldCols * tileSize) cl.x = -cl.width;
+        });
+
+        // Actualizar Entidades y Monstruos
+        entities.forEach((en, index) => {
+            // IA simple
+            let distPlayer = Math.hypot(player.x - en.x, player.y - en.y);
+            if (en.level >= 5) {
+                // Monstruos persiguen si están cerca
+                if (distPlayer < 300) {
+                    en.vx = player.x > en.x ? 1.5 : -1.5;
                 } else {
-                    // Patrullar
-                    enemy.vx = enemy.direction * enemy.speed;
-                    // Cambiar de dirección aleatoriamente si está en el suelo
-                    enemy.patrolTime++;
-                    if (enemy.patrolTime > 150 && Math.random() < 0.02) {
-                        enemy.direction *= -1;
-                        enemy.patrolTime = 0;
-                    }
+                    en.vx = Math.sin(Date.now() / 500) * 1;
                 }
-
-                // Aplicar físicas
-                resolvePhysics(enemy);
-
-                // Detección: Daño al jugador si se tocan
-                if (collidesWithPlayer(enemy)) {
-                    player.health -= (enemy.level / 2); // Daño basado en nivel
-                    console.log("Salud jugador:", player.health);
-                }
-            });
-        }
-
-        function checkObstacleAhead(e) {
-            let nextTileC = Math.floor((e.x + (e.width * e.direction) + (e.direction > 0 ? e.width : 0)) / tileSize);
-            let currentR = Math.floor(e.y / tileSize) + 1;
-            if(currentR < rows && nextTileC >= 0 && nextTileC < cols) {
-                return world[currentR] && world[currentR][nextTileC] !== 0;
-            }
-            return false;
-        }
-
-        function collidesWithPlayer(obj) {
-            return obj.x < player.x + player.width &&
-                   obj.x + obj.width > player.x &&
-                   obj.y < player.y + player.height &&
-                   obj.y + obj.height > player.y;
-        }
-
-        // --- Bucle Principal del Juego ---
-        function update() {
-            // Movimiento Jugador
-            player.vx = 0;
-            if (keys['a'] || keys['arrowleft']) player.vx = -player.speed;
-            if (keys['d'] || keys['arrowright']) player.vx = player.speed;
-            if ((keys['w'] || keys[' '] || keys['arrowup']) && player.grounded) {
-                player.vy = player.jumpForce;
-                player.grounded = false;
-            }
-
-            // Físicas Jugador
-            resolvePhysics(player);
-
-            // Actualizar enemigos
-            updateEnemies();
-
-            // Game over simple
-            if (player.health <= 0) {
-                alert("¡Has muerto! Reiniciando mundo.");
-                location.reload();
-            }
-        }
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Dibujar mundo
-            for (let r = 0; r < rows; r++) {
-                for (let c = 0; c < cols; c++) {
-                    if (world[r][c] === 1) {
-                        ctx.fillStyle = "#8B4513"; // Tierra
-                        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
-                    }
+            } else {
+                // Animales deambulan
+                en.timer++;
+                if (en.timer > 120) {
+                    en.vx = (Math.random() - 0.5) * 1.5;
+                    en.timer = 0;
                 }
             }
 
-            // Dibujar enemigos
-            enemies.forEach(enemy => {
-                ctx.fillStyle = enemy.color;
-                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
-                
-                // Ojos del enemigo para indicar dirección
-                ctx.fillStyle = "white";
-                let eyeOffsetX = enemy.direction > 0 ? 15 : 0;
-                ctx.fillRect(enemy.x + eyeOffsetX, enemy.y + 10, 8, 8);
-            });
-
-            // Dibujar jugador
-            ctx.fillStyle = "#FF4500"; // Naranja Rojizo
-            ctx.fillRect(player.x, player.y, player.width, player.height);
-
-            // HUD de Salud
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.fillText("Salud: " + player.health, 20, 30);
-        }
-
-        function loop() {
-            update();
-            draw();
-            requestAnimationFrame(loop);
-        }
-
-        // Empezar el bucle
-        loop();
-    </script>
-</body>
-</html>
+            en.vy += 0.5;
+            en.x += en.vx;
+            if (checkCollision(en.x, en.y, en.width, en.height)) en.x -= en.vx;
+            
+            en.y += en.vy;
+            if (checkCollision(en.x, en.y, en.width, en.height)) {
+                en.y -= en.vy;
+            
