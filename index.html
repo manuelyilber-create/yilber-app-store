@@ -1,65 +1,303 @@
-<!-- Estilos CSS Actualizados -->
-  <style>
-    :root {
-      /* Colores base ajustados para el fondo Android oscuro */
-      --bg-color-center: #1a2542; /* Azul muy oscuro en el centro */
-      --bg-color-edge: #0b0f19;   /* Negro casi total en los bordes */
-      
-      --card-bg: rgba(16, 24, 48, 0.7); /* Tarjetas más translúcidas */
-      --accent-cyan: #00f2fe;
-      --accent-blue: #4facfe;
-      --accent-purple: #7b2cbf;
-      --text-color: #ffffff;
-      --admin-color: #ff0055;
-    }
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prototipo Terraria 2D con Enemigos</title>
+    <style>
+        body {
+            background-color: #1a1a1a;
+            color: white;
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        canvas {
+            /* Fondo de cielo/cuevas que cambia según la altura */
+            background: linear-gradient(to bottom, #87CEEB 40%, #355C7D 100%);
+            display: block;
+            margin: 20px auto;
+            border: 4px solid #333;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+        }
+    </style>
+</head>
+<body>
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    }
-
-    body {
-      /* === AQUÍ ESTÁ EL TRUCO DEL FONDO ANDROID === */
-      
-      /* 1. Definimos los dos fondos: El patrón y el degradado */
-      background-image: 
-        url('pattern.png'), /* Reemplaza con tu archivo de imagen */
-        radial-gradient(circle at center, var(--bg-color-center) 0%, var(--bg-color-edge) 70%);
-
-      /* 2. Ajustamos cómo se comportan */
-      background-repeat: repeat, no-repeat; /* El patrón se repite, el degradado no */
-      background-position: center, center;
-      background-size: auto, cover; /* El patrón mantiene su tamaño, el degradado cubre todo */
-      background-attachment: fixed; /* Mantiene el fondo quieto al hacer scroll */
-
-      /* 3. Mezclamos el patrón con el degradado para el efecto "soft glow" */
-      background-blend-mode: overlay; /* O prueba 'soft-light' si es muy fuerte */
-      
-      /* === FIN DEL TRUCO === */
-
-      color: var(--text-color);
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    /* ... El resto del código CSS se mantiene igual ... */
+    <h1>Mini Terraria 2D: Enemigos</h1>
+    <p>Usa **A y D** para moverte, **W o Espacio** para saltar. Haz **clic** para romper bloques.</p>
+    <p>¡Cuidado con los monstruos! (Verdes: Nivel 5, Rojos: Nivel 10)</p>
     
-    /* Navbar sutilmente translúcida */
-    header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem 2rem;
-      background: rgba(11, 15, 25, 0.8); /* Más transparente */
-      border-bottom: 1px solid rgba(0, 242, 254, 0.1);
-      backdrop-filter: blur(15px); /* Desenfoque del fondo */
-      position: sticky;
-      top: 0;
-      z-index: 100;
-    }
+    <canvas id="gameCanvas" width="800" height="500"></canvas>
 
-    /* ... (Resto de los estilos de la respuesta anterior) ... */
-  </style>
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        // --- Configuración del mundo ---
+        const tileSize = 40;
+        const cols = canvas.width / tileSize;
+        const rows = canvas.height / tileSize;
+        let world = [];
+
+        // Generar mundo básico con colinas
+        for (let r = 0; r < rows; r++) {
+            let row = [];
+            for (let c = 0; c < cols; c++) {
+                // Nivel base del suelo
+                if (r > 10) {
+                    row.push(1); // Tierra
+                } else {
+                    row.push(0); // Aire
+                }
+            }
+            world.push(row);
+        }
+        
+        // Crear un par de cuevas aleatorias
+        for (let i = 0; i < 3; i++) {
+            let startR = Math.floor(Math.random() * 5) + 12;
+            let startC = Math.floor(Math.random() * (cols - 10)) + 5;
+            for (let cr = 0; cr < 3; cr++) {
+                for (let cc = 0; cc < 6; cc++) {
+                    if (startR + cr < rows && startC + cc < cols) {
+                        world[startR + cr][startC + cc] = 0;
+                    }
+                }
+            }
+        }
+
+        // --- Jugador ---
+        let player = {
+            x: 100, y: 300,
+            width: 30, height: 50,
+            vx: 0, vy: 0,
+            speed: 5, jumpForce: -12, gravity: 0.6,
+            grounded: false,
+            health: 100
+        };
+
+        // --- Enemigos ---
+        let enemies = [];
+        
+        function spawnEnemy(type) {
+            let enemy = {
+                width: 30, height: 40,
+                vx: 0, vy: 0,
+                gravity: 0.6,
+                grounded: false,
+                patrolTime: 0, // Temporizador para cambiar de dirección
+                direction: 1, // 1 = derecha, -1 = izquierda
+                target: null // Jugador al que perseguir
+            };
+
+            if (type === 'weak') {
+                // Nivel 5: Lento, menos daño
+                enemy.level = 5;
+                enemy.speed = 2;
+                enemy.color = '#228B22'; // Verde Bosque
+                enemy.health = 50;
+            } else if (type === 'strong') {
+                // Nivel 10: Rápido, más peligroso
+                enemy.level = 10;
+                enemy.speed = 4;
+                enemy.color = '#B22222'; // Rojo Ladrillo
+                enemy.health = 150;
+            }
+
+            // Aparecer en un lugar aleatorio (más o menos en el suelo)
+            enemy.x = Math.random() * (canvas.width - enemy.width);
+            enemy.y = 300; 
+
+            enemies.push(enemy);
+        }
+
+        // Generar algunos monstruos iniciales
+        spawnEnemy('weak'); // Verde Lv 5
+        spawnEnemy('weak'); // Verde Lv 5
+        spawnEnemy('strong');// Rojo Lv 10
+
+        // --- Controles ---
+        let keys = {};
+        window.addEventListener("keydown", (e) => keys[e.key.toLowerCase()] = true);
+        window.addEventListener("keyup", (e) => keys[e.key.toLowerCase()] = false);
+
+        // --- Interfaz del Ratón ---
+        canvas.addEventListener("click", (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const mouseX = e.clientX - rect.left;
+            const mouseY = e.clientY - rect.top;
+            const c = Math.floor(mouseX / tileSize);
+            const r = Math.floor(mouseY / tileSize);
+            // Romper bloque
+            if (r >= 0 && r < rows && c >= 0 && c < cols) {
+                world[r][c] = 0;
+            }
+        });
+
+        // --- Físicas y Colisiones Genéricas ---
+        function resolvePhysics(entity) {
+            // Gravedad
+            entity.vy += entity.gravity;
+
+            // Colisión X
+            entity.x += entity.vx;
+            if (checkWorldCollision(entity)) {
+                entity.x -= entity.vx;
+                if (entity.vx !== 0) entity.direction *= -1; // Girar al chocar pared
+            }
+
+            // Colisión Y
+            entity.y += entity.vy;
+            entity.grounded = false;
+            if (checkWorldCollision(entity)) {
+                entity.y -= entity.vy;
+                if (entity.vy > 0) entity.grounded = true;
+                entity.vy = 0;
+            }
+
+            // Limites del canvas
+            if (entity.x < 0) { entity.x = 0; entity.direction = 1; }
+            if (entity.x > canvas.width - entity.width) { entity.x = canvas.width - entity.width; entity.direction = -1; }
+        }
+
+        function checkWorldCollision(entity) {
+            let left = Math.floor(entity.x / tileSize);
+            let right = Math.floor((entity.x + entity.width - 1) / tileSize);
+            let top = Math.floor(entity.y / tileSize);
+            let bottom = Math.floor((entity.y + entity.height - 1) / tileSize);
+
+            if (left < 0 || right >= cols || top < 0 || bottom >= rows) return true;
+
+            for (let r = top; r <= bottom; r++) {
+                for (let c = left; c <= right; c++) {
+                    if (world[r] && world[r][c] !== 0) return true;
+                }
+            }
+            return false;
+        }
+
+        // --- IA de Enemigos ---
+        function updateEnemies() {
+            enemies.forEach(enemy => {
+                // Calcular distancia al jugador
+                let dx = player.x - enemy.x;
+                let dist = Math.sqrt(dx*dx + (player.y - enemy.y)*(player.y - enemy.y));
+
+                // Lógica de IA: Si está a menos de 250 píxeles, perseguir. Si no, patrullar.
+                if (dist < 250) {
+                    // Perseguir
+                    enemy.vx = (dx > 0) ? enemy.speed : -enemy.speed;
+                    
+                    // Saltar si hay un obstáculo delante mientras persigue
+                    if (Math.random() < 0.05 && enemy.grounded && checkObstacleAhead(enemy)) {
+                        enemy.vy = enemy.jumpForce;
+                    }
+                } else {
+                    // Patrullar
+                    enemy.vx = enemy.direction * enemy.speed;
+                    // Cambiar de dirección aleatoriamente si está en el suelo
+                    enemy.patrolTime++;
+                    if (enemy.patrolTime > 150 && Math.random() < 0.02) {
+                        enemy.direction *= -1;
+                        enemy.patrolTime = 0;
+                    }
+                }
+
+                // Aplicar físicas
+                resolvePhysics(enemy);
+
+                // Detección: Daño al jugador si se tocan
+                if (collidesWithPlayer(enemy)) {
+                    player.health -= (enemy.level / 2); // Daño basado en nivel
+                    console.log("Salud jugador:", player.health);
+                }
+            });
+        }
+
+        function checkObstacleAhead(e) {
+            let nextTileC = Math.floor((e.x + (e.width * e.direction) + (e.direction > 0 ? e.width : 0)) / tileSize);
+            let currentR = Math.floor(e.y / tileSize) + 1;
+            if(currentR < rows && nextTileC >= 0 && nextTileC < cols) {
+                return world[currentR] && world[currentR][nextTileC] !== 0;
+            }
+            return false;
+        }
+
+        function collidesWithPlayer(obj) {
+            return obj.x < player.x + player.width &&
+                   obj.x + obj.width > player.x &&
+                   obj.y < player.y + player.height &&
+                   obj.y + obj.height > player.y;
+        }
+
+        // --- Bucle Principal del Juego ---
+        function update() {
+            // Movimiento Jugador
+            player.vx = 0;
+            if (keys['a'] || keys['arrowleft']) player.vx = -player.speed;
+            if (keys['d'] || keys['arrowright']) player.vx = player.speed;
+            if ((keys['w'] || keys[' '] || keys['arrowup']) && player.grounded) {
+                player.vy = player.jumpForce;
+                player.grounded = false;
+            }
+
+            // Físicas Jugador
+            resolvePhysics(player);
+
+            // Actualizar enemigos
+            updateEnemies();
+
+            // Game over simple
+            if (player.health <= 0) {
+                alert("¡Has muerto! Reiniciando mundo.");
+                location.reload();
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Dibujar mundo
+            for (let r = 0; r < rows; r++) {
+                for (let c = 0; c < cols; c++) {
+                    if (world[r][c] === 1) {
+                        ctx.fillStyle = "#8B4513"; // Tierra
+                        ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize);
+                    }
+                }
+            }
+
+            // Dibujar enemigos
+            enemies.forEach(enemy => {
+                ctx.fillStyle = enemy.color;
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+                
+                // Ojos del enemigo para indicar dirección
+                ctx.fillStyle = "white";
+                let eyeOffsetX = enemy.direction > 0 ? 15 : 0;
+                ctx.fillRect(enemy.x + eyeOffsetX, enemy.y + 10, 8, 8);
+            });
+
+            // Dibujar jugador
+            ctx.fillStyle = "#FF4500"; // Naranja Rojizo
+            ctx.fillRect(player.x, player.y, player.width, player.height);
+
+            // HUD de Salud
+            ctx.fillStyle = "white";
+            ctx.font = "20px Arial";
+            ctx.fillText("Salud: " + player.health, 20, 30);
+        }
+
+        function loop() {
+            update();
+            draw();
+            requestAnimationFrame(loop);
+        }
+
+        // Empezar el bucle
+        loop();
+    </script>
+</body>
+</html>
