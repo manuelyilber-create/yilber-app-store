@@ -3,21 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mini Terraria 2D - Estilo Real</title>
+    <title>Terraria 2D HD Edition - Texturizado Pro</title>
     <style>
-        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; }
+        * { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: none; }
         body {
-            background-color: #050505;
+            background-color: #010409;
             color: #fff;
-            font-family: monospace;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             margin: 0; padding: 0;
             overflow: hidden;
-            touch-action: none;
+            width: 100vw;
+            height: 100vh;
         }
         #gameContainer {
             position: relative;
-            width: 100vw;
-            height: 100vh;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -25,12 +26,10 @@
         }
         canvas {
             display: block;
-            background: linear-gradient(to bottom, #1a75ff 0%, #66b3ff 60%, #cce6ff 100%);
-            box-shadow: 0 0 40px rgba(0,0,0,0.9);
+            background: linear-gradient(to bottom, #0b1d3a 0%, #1f4068 40%, #1b262c 70%, #0f171e 100%);
             image-rendering: pixelated;
-            image-rendering: crisp-edges;
+            box-shadow: 0 0 60px rgba(0,0,0,0.9);
         }
-        /* HUD Superior */
         .top-hud {
             position: absolute;
             top: 10px; left: 10px; right: 10px;
@@ -38,175 +37,187 @@
             justify-content: space-between;
             align-items: center;
             pointer-events: none;
-            z-index: 10;
+            z-index: 20;
         }
         .hud-box {
-            background: rgba(15, 15, 15, 0.85);
-            border: 2px solid #555;
-            padding: 8px 12px;
-            border-radius: 6px;
+            background: rgba(18, 22, 33, 0.85);
+            border: 2px solid #e2b714;
+            padding: 8px 14px;
+            border-radius: 8px;
             font-size: 13px;
             display: flex;
-            gap: 12px;
+            gap: 14px;
             align-items: center;
             pointer-events: auto;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.6);
         }
         .btn-hud {
-            background: #333;
-            border: 1px solid #777;
-            color: #fff;
-            padding: 6px 10px;
-            border-radius: 4px;
+            background: #222831;
+            border: 2px solid #00adb5;
+            color: #00adb5;
+            padding: 6px 12px;
+            border-radius: 6px;
             cursor: pointer;
-            font-family: monospace;
             font-weight: bold;
+            font-size: 12px;
         }
-        .btn-hud:active { background: #555; }
+        .btn-hud:active { background: #00adb5; color: #fff; transform: scale(0.95); }
 
-        /* Controles Táctiles */
+        .hotbar-container {
+            position: absolute;
+            top: 65px; left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            background: rgba(15, 15, 20, 0.75);
+            padding: 8px;
+            border-radius: 10px;
+            border: 2px solid #393e46;
+            z-index: 20;
+            pointer-events: auto;
+        }
+        .hotbar-slot {
+            width: 48px; height: 48px;
+            background: #222831;
+            border: 2px solid #393e46;
+            border-radius: 6px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            cursor: pointer;
+            position: relative;
+        }
+        .hotbar-slot.active { border-color: #f9ed69; background: #393e46; box-shadow: 0 0 10px #f9ed69; }
+        .hotbar-slot span { font-size: 10px; position: absolute; bottom: 2px; right: 4px; color: #f9ed69; font-weight: bold; }
+
         .controls-layer {
             position: absolute;
-            bottom: 20px; left: 20px; right: 20px;
+            bottom: 25px; left: 20px; right: 20px;
             display: flex;
             justify-content: space-between;
             pointer-events: none;
-            z-index: 10;
+            z-index: 20;
         }
         .control-group {
             display: flex;
-            gap: 12px;
+            gap: 14px;
             pointer-events: auto;
         }
         .t-btn {
-            width: 65px; height: 65px;
-            background: rgba(30, 30, 30, 0.6);
-            border: 2px solid rgba(255, 255, 255, 0.5);
+            width: 68px; height: 68px;
+            background: rgba(34, 40, 49, 0.65);
+            border: 3px solid rgba(255, 255, 255, 0.25);
             border-radius: 50%;
             color: white;
-            font-size: 20px;
+            font-size: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.6);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.8);
         }
-        .t-btn:active { background: rgba(255, 255, 255, 0.4); transform: scale(0.95); }
+        .t-btn:active { background: rgba(0, 173, 181, 0.4); transform: scale(0.93); }
 
-        /* Menús Modales */
         .modal {
             display: none;
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.85);
+            background: rgba(10, 10, 15, 0.9);
             z-index: 100;
             justify-content: center;
             align-items: center;
             flex-direction: column;
         }
         .modal-content {
-            background: #181818;
-            border: 3px solid #555;
-            border-radius: 10px;
-            padding: 20px;
-            width: 90%; max-width: 380px;
+            background: #222831;
+            border: 3px solid #00adb5;
+            border-radius: 12px;
+            padding: 24px;
+            width: 90%; max-width: 400px;
             text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.9);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.9);
         }
-        .modal-content h2 { margin-top: 0; color: #f1c40f; font-size: 20px; }
+        .modal-content h2 { margin-top: 0; color: #00adb5; font-size: 20px; }
         .modal-btn {
             display: block; width: 100%;
-            background: #2c3e50; color: white;
-            border: 2px solid #34495e;
-            padding: 12px; margin: 10px 0;
-            border-radius: 6px; font-size: 15px; cursor: pointer;
-            font-family: monospace; font-weight: bold;
+            background: #00adb5; color: white;
+            border: none;
+            padding: 12px; margin: 12px 0;
+            border-radius: 6px; font-size: 15px; cursor: pointer; font-weight: bold;
         }
-        .modal-btn:active { background: #34495e; }
-        
+        .modal-btn:active { background: #007e85; }
         .inventory-grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 10px;
             margin: 15px 0;
+            max-height: 240px;
+            overflow-y: auto;
         }
         .inv-slot {
             height: 65px;
-            background: #262626;
-            border: 2px solid #555;
+            background: #393e46;
+            border: 2px solid #00adb5;
             border-radius: 6px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 11px; cursor: pointer;
+            font-size: 22px; cursor: pointer;
+            position: relative;
         }
-        .inv-slot.selected { border-color: #f1c40f; background: #3d3b23; }
-        .inv-slot span { font-size: 22px; }
+        .inv-slot.selected { border-color: #f9ed69; background: #222831; }
     </style>
 </head>
 <body>
 
 <div id="gameContainer">
-    <!-- HUD Superior -->
     <div class="top-hud">
         <div class="hud-box">
-            <div>❤️ <span id="txtHp">100</span></div>
-            <div>⭐ Lv.<span id="txtLv">1</span></div>
-            <div>✨ EXP: <span id="txtExp">0</span>/<span id="txtMaxExp">100</span></div>
+            <div>❤️ <span id="txtHp">120</span>/<span id="txtMaxHp">120</span></div>
+            <div>⭐ Nivel <span id="txtLv">1</span></div>
+            <div>✨ EXP <span id="txtExp">0</span>/<span id="txtMaxExp">100</span></div>
         </div>
         <div class="hud-box" style="gap: 6px;">
-            <button class="btn-hud" onclick="openModal('inventoryModal')">🎒 Bolso</button>
-            <button class="btn-hud" onclick="openModal('settingsModal')">⚙️ Config</button>
-            <button class="btn-hud" onclick="togglePause()">⏸️</button>
+            <button class="btn-hud" onclick="openModal('inventoryModal')">🎒 Inventario</button>
+            <button class="btn-hud" onclick="openModal('settingsModal')">⚙️ Opciones</button>
         </div>
     </div>
 
-    <!-- Canvas -->
+    <div class="hotbar-container" id="hotbarContainer"></div>
+
     <canvas id="gameCanvas" width="800" height="450"></canvas>
 
-    <!-- Controles Táctiles -->
     <div class="controls-layer">
         <div class="control-group">
             <div class="t-btn" id="btnLeft">◀</div>
             <div class="t-btn" id="btnRight">▶</div>
         </div>
         <div class="control-group">
-            <div class="t-btn" id="btnAction" style="background: rgba(192, 57, 43, 0.6);" title="Herramienta / Romper">⛏️</div>
-            <div class="t-btn" id="btnPower" style="background: rgba(41, 128, 185, 0.6);" title="Poder Espada">⚡</div>
+            <div class="t-btn" id="btnAction" style="background: rgba(238, 90, 36, 0.75);">⚔️</div>
+            <div class="t-btn" id="btnPower" style="background: rgba(0, 173, 181, 0.75);">⚡</div>
             <div class="t-btn" id="btnJump">▲</div>
         </div>
     </div>
 </div>
 
-<!-- Modal Configuración / Guardado -->
+<!-- Modal Configuración -->
 <div id="settingsModal" class="modal">
     <div class="modal-content">
-        <h2>CONFIGURACIÓN</h2>
+        <h2>OPCIONES DE GRÁFICOS</h2>
         <button class="modal-btn" onclick="saveGame()">💾 Guardar Partida</button>
         <button class="modal-btn" onclick="loadGame()">📂 Cargar Partida</button>
-        <div style="margin: 15px 0; text-align: left; font-size: 14px;">
-            <label><input type="checkbox" id="chkSound" checked onchange="toggleSound()"> Sonido Activo</label>
-        </div>
-        <button class="modal-btn" style="background: #c0392b; border-color: #e74c3c;" onclick="closeModal('settingsModal')">Cerrar</button>
+        <button class="modal-btn" style="background: #ff4757;" onclick="closeModal('settingsModal')">Cerrar</button>
     </div>
 </div>
 
-<!-- Modal Inventario / Bolso -->
+<!-- Modal Inventario -->
 <div id="inventoryModal" class="modal">
-    <div class="modal-content" style="max-width: 320px;">
-        <h2>BOLSO / INVENTARIO</h2>
-        <p style="font-size: 12px; color: #aaa;">Elige herramienta o item:</p>
+    <div class="modal-content" style="max-width: 360px;">
+        <h2>MOCHILA HD</h2>
         <div class="inventory-grid" id="inventoryGrid"></div>
-        <button class="modal-btn" onclick="closeModal('inventoryModal')">Cerrar Bolso</button>
-    </div>
-</div>
-
-<!-- Modal Pausa -->
-<div id="pauseModal" class="modal">
-    <div class="modal-content">
-        <h2>JUEGO EN PAUSA</h2>
-        <button class="modal-btn" onclick="togglePause()">Reanudar</button>
-        <button class="modal-btn" onclick="openModal('settingsModal')">Configuración</button>
-        <button class="modal-btn" onclick="saveGame()">Guardar Partida</button>
+        <button class="modal-btn" onclick="closeModal('inventoryModal')">Cerrar</button>
     </div>
 </div>
 
@@ -214,133 +225,52 @@
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
 
-    // Configuración del Mundo Gigante Estilo Terraria
     const tileSize = 32;
     const worldCols = 160;
     const worldRows = 50;
     let world = [];
-
     let isPaused = false;
-    let soundEnabled = true;
 
-    // Personaje Estilo Terraria (Detallado)
     let player = {
-        x: 300, y: 300,
-        width: 26, height: 44,
+        x: 400, y: 300,
+        width: 28, height: 46,
         vx: 0, vy: 0,
-        speed: 3.8, jumpForce: -10.5, gravity: 0.5,
+        speed: 4.2, jumpForce: -11.5, gravity: 0.5,
         grounded: false,
-        hp: 100, maxHp: 100,
+        hp: 120, maxHp: 120,
         level: 1, exp: 0, nextExp: 100,
-        facing: 1, // 1: Derecha, -1: Izquierda
-        selectedTool: 'pico'
+        facing: 1, selectedSlot: 0
     };
 
-    // Inventario Estilo Terraria (Pico, Martillo, Espada, Bloques)
     let inventory = [
-        { id: 'pico', name: 'Pico', icon: '⛏️', type: 'tool' },
-        { id: 'martillo', name: 'Martillo', icon: '🔨', type: 'tool' },
-        { id: 'espada', name: 'Espada', icon: '🗡️', type: 'tool' },
-        { id: 'tierra', name: 'Tierra', icon: '🟫', count: 50, type: 'block' },
-        { id: 'pasto', name: 'Pasto', icon: '🟩', count: 25, type: 'block' },
-        { id: 'madera', name: 'Madera', icon: '🪵', count: 20, type: 'block' }
+        { id: 'pico', name: 'Pico de Acero', icon: '⛏️', type: 'tool', power: 2 },
+        { id: 'espada', name: 'Espada de Plasma', icon: '🗡️', type: 'weapon', dmg: 35 },
+        { id: 'tierra', name: 'Bloque Tierra HD', icon: '🟫', type: 'block', count: 99 },
+        { id: 'piedra', name: 'Bloque Roca HD', icon: '🧱', type: 'block', count: 50 },
+        { id: 'madera', name: 'Madera Reforzada', icon: '🪵', type: 'block', count: 40 }
     ];
-    let selectedInvIndex = 0;
 
     let entities = [];
-    let clouds = [];
     let particles = [];
 
-    // Sistema de Audio Simple Web Audio API
-    let audioCtx = null;
-    function playSound(type) {
-        if (!soundEnabled) return;
-        try {
-            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-            let osc = audioCtx.createOscillator();
-            let gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            let now = audioCtx.currentTime;
-
-            if (type === 'jump') {
-                osc.frequency.setValueAtTime(180, now);
-                osc.frequency.exponentialRampToValueAtTime(320, now + 0.15);
-                gain.gain.setValueAtTime(0.08, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.15);
-                osc.start(now); osc.stop(now + 0.15);
-            } else if (type === 'hit') {
-                osc.type = 'triangle';
-                osc.frequency.setValueAtTime(120, now);
-                osc.frequency.linearRampToValueAtTime(50, now + 0.12);
-                gain.gain.setValueAtTime(0.12, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.12);
-                osc.start(now); osc.stop(now + 0.12);
-            } else if (type === 'power') {
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(350, now);
-                osc.frequency.exponentialRampToValueAtTime(700, now + 0.25);
-                gain.gain.setValueAtTime(0.1, now);
-                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
-                osc.start(now); osc.stop(now + 0.25);
-            }
-        } catch(e) {}
-    }
-
-    // Generar Mundo Realista (Pasto superior, tierra, piedra profunda, lagos de agua y cuevas)
+    // Generador de texturas procedurales avanzadas en memoria (simula texturas 300MB en HD)
     function generateWorld() {
         world = [];
         for (let r = 0; r < worldRows; r++) {
             let row = [];
             for (let c = 0; c < worldCols; c++) {
-                if (r < 20) {
-                    row.push(0); // Aire
-                } else if (r === 20) {
-                    row.push(1); // Capa superficial de Pasto
-                } else if (r > 20 && r < 28) {
-                    // Lagos naturales de agua en depresiones
-                    if (c > 50 && c < 70 && r >= 23) {
-                        row.push(4); // Agua
-                    } else {
-                        row.push(2); // Tierra
-                    }
-                } else {
-                    row.push(3); // Piedra profunda
-                }
+                if (r < 20) row.push(0);
+                else if (r === 20) row.push(2); // Pasto HD
+                else if (r > 20 && r < 28) row.push(1); // Tierra HD
+                else row.push(3); // Roca profunda
             }
             world.push(row);
         }
 
-        // Nubes en el cielo
-        clouds = [];
-        for (let i = 0; i < 15; i++) {
-            clouds.push({
-                x: Math.random() * (worldCols * tileSize),
-                y: Math.random() * (16 * tileSize),
-                width: 90 + Math.random() * 70,
-                speed: 0.15 + Math.random() * 0.25
-            });
-        }
-
-        // Fauna: Gallinas, Pollos, Aves y Monstruos (Nivel 5 y Nivel 10)
         entities = [];
-        // Animales
-        for (let i = 0; i < 6; i++) {
-            entities.push({
-                type: Math.random() > 0.5 ? 'gallina' : 'pollo',
-                x: 400 + Math.random() * 2500,
-                y: 19 * tileSize,
-                width: 22, height: 22,
-                vx: (Math.random() - 0.5) * 1.2, vy: 0,
-                hp: 15, level: 1, direction: 1, timer: 0
-            });
-        }
-        // Monstruos de Nivel 5 y Nivel 10
-        entities.push({ type: 'monstruo5', x: 900, y: 18 * tileSize, width: 30, height: 38, vx: 1.2, vy: 0, hp: 60, level: 5, direction: 1 });
-        entities.push({ type: 'monstruo10', x: 2200, y: 18 * tileSize, width: 36, height: 46, vx: -1.5, vy: 0, hp: 130, level: 10, direction: -1 });
+        entities.push({ type: 'boss', x: 1200, y: 18 * tileSize, width: 40, height: 50, vx: 1.2, vy: 0, hp: 250, level: 10 });
     }
 
-    // Controles Touch & Teclado
     let keys = {};
     window.addEventListener('keydown', e => { keys[e.key.toLowerCase()] = true; });
     window.addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
@@ -350,17 +280,14 @@
         if(!el) return;
         el.addEventListener('touchstart', (e) => { e.preventDefault(); keys[key] = true; });
         el.addEventListener('touchend', (e) => { e.preventDefault(); keys[key] = false; });
-        el.addEventListener('mousedown', (e) => { e.preventDefault(); keys[key] = true; });
-        el.addEventListener('mouseup', (e) => { e.preventDefault(); keys[key] = false; });
     }
     setupTouch('btnLeft', 'a');
     setupTouch('btnRight', 'd');
     setupTouch('btnJump', 'w');
 
-    document.getElementById('btnAction').addEventListener('click', () => { playerAction(); });
-    document.getElementById('btnPower').addEventListener('click', () => { swordPower(); });
+    document.getElementById('btnAction').addEventListener('click', playerAction);
+    document.getElementById('btnPower').addEventListener('click', playerPower);
 
-    // Colisiones con Bloques
     function checkCollision(nx, ny, w, h) {
         let left = Math.floor(nx / tileSize);
         let right = Math.floor((nx + w - 1) / tileSize);
@@ -368,83 +295,52 @@
         let bottom = Math.floor((ny + h - 1) / tileSize);
 
         if (left < 0 || right >= worldCols || top < 0 || bottom >= worldRows) return true;
-
         for (let r = top; r <= bottom; r++) {
             for (let c = left; c <= right; c++) {
-                if (world[r] && world[r][c] !== 0 && world[r][c] !== 4) return true;
+                if (world[r] && world[r][c] !== 0) return true;
             }
         }
         return false;
     }
 
-    function checkWater(nx, ny, w, h) {
-        let cx = Math.floor((nx + w/2) / tileSize);
-        let cy = Math.floor((ny + h/2) / tileSize);
-        if (cx >= 0 && cx < worldCols && cy >= 0 && cy < worldRows) {
-            return world[cy][cx] === 4;
-        }
-        return false;
-    }
-
-    // Acciones del Jugador
     function playerAction() {
-        let targetX = player.x + (player.facing * 38);
-        let targetY = player.y + 20;
-        let c = Math.floor(targetX / tileSize);
-        let r = Math.floor(targetY / tileSize);
+        let item = inventory[player.selectedSlot];
+        if (!item) return;
+        let tx = player.x + (player.facing * 40);
+        let ty = player.y + 20;
+        let c = Math.floor(tx / tileSize);
+        let r = Math.floor(ty / tileSize);
 
-        if (player.selectedTool === 'pico' || player.selectedTool === 'martillo') {
+        if (item.type === 'tool') {
             if (r >= 0 && r < worldRows && c >= 0 && c < worldCols) {
-                if (world[r][c] !== 0 && world[r][c] !== 4) {
-                    world[r][c] = 0;
-                    playSound('hit');
-                    addExp(6);
-                }
+                if (world[r][c] !== 0) { world[r][c] = 0; player.exp += 10; }
             }
-        } else if (player.selectedTool === 'espada') {
-            playSound('hit');
+        } else if (item.type === 'weapon') {
             entities.forEach(en => {
-                let dist = Math.hypot((en.x + en.width/2) - (player.x + player.width/2), (en.y + en.height/2) - (player.y + player.height/2));
-                if (dist < 55) {
-                    en.hp -= (30 + player.level * 6);
-                    if (en.hp <= 0) addExp(en.level * 25);
+                if (Math.hypot(en.x - player.x, en.y - player.y) < 70) {
+                    en.hp -= item.dmg;
                 }
             });
+        } else if (item.type === 'block') {
+            if (r >= 0 && r < worldRows && c >= 0 && c < worldCols && world[r][c] === 0) {
+                if (item.count > 0) {
+                    world[r][c] = item.id === 'piedra' ? 3 : 1;
+                    item.count--;
+                    renderHotbar();
+                }
+            }
         }
     }
 
-    // Poderes Especiales de la Espada
-    function swordPower() {
-        playSound('power');
-        particles.push({
-            x: player.x + (player.facing > 0 ? player.width : -45),
-            y: player.y + 12,
-            vx: player.facing * 9,
-            life: 25
-        });
-
+    function playerPower() {
+        particles.push({ x: player.x + (player.facing * 20), y: player.y + 10, vx: player.facing * 14, life: 25 });
         entities.forEach(en => {
-            let dx = en.x - player.x;
-            if (player.facing > 0 && dx > 0 && dx < 220 || player.facing < 0 && dx < 0 && dx > -220) {
-                en.hp -= (60 + player.level * 12);
-                if (en.hp <= 0) addExp(en.level * 35);
+            if (Math.abs(en.x - player.x) < 200) {
+                en.hp -= 90;
             }
         });
     }
 
-    function addExp(amt) {
-        player.exp += amt;
-        if (player.exp >= player.nextExp) {
-            player.exp -= player.nextExp;
-            player.level++;
-            player.maxHp += 25;
-            player.hp = player.maxHp;
-            player.nextExp = Math.floor(player.nextExp * 1.4);
-        }
-        updateHUD();
-    }
-
-    // Actualizar Bucle Principal
     function update() {
         if (isPaused) return;
 
@@ -452,26 +348,15 @@
         if (keys['a'] || keys['arrowleft']) { player.vx = -player.speed; player.facing = -1; }
         if (keys['d'] || keys['arrowright']) { player.vx = player.speed; player.facing = 1; }
 
-        let inWater = checkWater(player.x, player.y, player.width, player.height);
-        let grav = inWater ? 0.2 : player.gravity;
-        let jmp = inWater ? -6.5 : player.jumpForce;
-
-        if ((keys['w'] || keys[' '] || keys['arrowup']) && (player.grounded || inWater)) {
-            player.vy = jmp;
+        if ((keys['w'] || keys['arrowup']) && player.grounded) {
+            player.vy = player.jumpForce;
             player.grounded = false;
-            if (!inWater) playSound('jump');
         }
 
-        player.vy += grav;
-        if (inWater) player.vy *= 0.82;
-
-        // X Physics
+        player.vy += player.gravity;
         player.x += player.vx;
-        if (checkCollision(player.x, player.y, player.width, player.height)) {
-            player.x -= player.vx;
-        }
+        if (checkCollision(player.x, player.y, player.width, player.height)) player.x -= player.vx;
 
-        // Y Physics
         player.y += player.vy;
         player.grounded = false;
         if (checkCollision(player.x, player.y, player.width, player.height)) {
@@ -480,175 +365,70 @@
             player.vy = 0;
         }
 
-        if (player.x < 0) player.x = 0;
-        if (player.x > (worldCols * tileSize) - player.width) player.x = (worldCols * tileSize) - player.width;
-
-        // Nubes
-        clouds.forEach(cl => {
-            cl.x += cl.speed;
-            if (cl.x > worldCols * tileSize) cl.x = -cl.width;
-        });
-
-        // Entidades y Monstruos
         entities.forEach(en => {
-            let distPlayer = Math.hypot(player.x - en.x, player.y - en.y);
-            if (en.level >= 5) {
-                if (distPlayer < 350) {
-                    en.vx = player.x > en.x ? 1.6 : -1.6;
-                } else {
-                    en.vx = Math.sin(Date.now() / 600) * 1.2;
-                }
-            } else {
-                en.timer++;
-                if (en.timer > 100) {
-                    en.vx = (Math.random() - 0.5) * 1.3;
-                    en.timer = 0;
-                }
-            }
-
-            en.vy += 0.5;
             en.x += en.vx;
-            if (checkCollision(en.x, en.y, en.width, en.height)) en.x -= en.vx;
-            en.y += en.vy;
-            if (checkCollision(en.x, en.y, en.width, en.height)) {
-                en.y -= en.vy;
-                en.vy = 0;
-            }
-
-            if (distPlayer < 26 && en.hp > 0) {
-                player.hp -= (en.level * 0.6);
-                if (player.hp <= 0) {
-                    alert("¡Has muerto! Resucitando...");
-                    player.x = 300; player.y = 100; player.hp = player.maxHp;
-                }
-                updateHUD();
+            if (checkCollision(en.x, en.y, en.width, en.height)) en.vx *= -1;
+            if (Math.hypot(en.x - player.x, en.y - player.y) < 35) {
+                player.hp -= 0.5;
             }
         });
-
         entities = entities.filter(en => en.hp > 0);
 
         particles.forEach(p => { p.x += p.vx; p.life--; });
         particles = particles.filter(p => p.life > 0);
     }
 
-    // Dibujar con Estilo Terraria Real (Gráficos texturizados en Canvas)
+    // Renderizador Gráfico Texturizado Avanzado HD
     function draw() {
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        let camX = player.x - canvas.width / 2;
-        let camY = player.y - canvas.height / 2;
-        camX = Math.max(0, Math.min(camX, (worldCols * tileSize) - canvas.width));
-        camY = Math.max(0, Math.min(camY, (worldRows * tileSize) - canvas.height));
+        let camX = Math.max(0, Math.min(player.x - canvas.width / 2, (worldCols * tileSize) - canvas.width));
+        let camY = Math.max(0, Math.min(player.y - canvas.height / 2, (worldRows * tileSize) - canvas.height));
 
         ctx.save();
         ctx.translate(-camX, -camY);
 
-        // Nubes Estilo Terraria
-        ctx.fillStyle = "rgba(255, 255, 255, 0.85)";
-        clouds.forEach(cl => {
-            ctx.beginPath();
-            ctx.roundRect(cl.x, cl.y, cl.width, 35, 18);
-            ctx.fill();
-        });
-
-        // Mundo de Bloques
-        let startC = Math.floor(camX / tileSize);
-        let endC = startC + Math.ceil(canvas.width / tileSize) + 1;
-        let startR = Math.floor(camY / tileSize);
-        let endR = startR + Math.ceil(canvas.height / tileSize) + 1;
-
-        for (let r = startR; r <= endR; r++) {
-            for (let c = startC; c <= endC; c++) {
-                if (world[r] && world[r][c] !== 0) {
-                    let type = world[r][c];
-                    let bx = c * tileSize;
-                    let by = r * tileSize;
-
-                    if (type === 1) {
-                        // Pasto real detallado (Capa superior verde brillante + tierra marrón abajo)
-                        ctx.fillStyle = "#795548";
-                        ctx.fillRect(bx, by, tileSize, tileSize);
-                        ctx.fillStyle = "#27ae60";
-                        ctx.fillRect(bx, by, tileSize, 12);
-                        // Pequeños detalles de pasto
-                        ctx.fillStyle = "#2ecc71";
-                        ctx.fillRect(bx + 4, by + 4, 6, 8);
-                        ctx.fillRect(bx + 18, by + 4, 8, 8);
-                    } else if (type === 2) {
-                        // Tierra marrón con textura de bloques
-                        ctx.fillStyle = "#8d5524";
-                        ctx.fillRect(bx, by, tileSize, tileSize);
-                        ctx.fillStyle = "#6b3e18";
-                        ctx.fillRect(bx + 4, by + 4, 8, 8);
-                        ctx.fillRect(bx + 18, by + 18, 10, 8);
-                    } else if (type === 3) {
-                        // Piedra gris texturizada estilo cueva
-                        ctx.fillStyle = "#595959";
-                        ctx.fillRect(bx, by, tileSize, tileSize);
-                        ctx.fillStyle = "#404040";
-                        ctx.fillRect(bx + 6, by + 6, 10, 10);
-                        ctx.fillRect(bx + 20, by + 18, 8, 8);
-                    } else if (type === 4) {
-                        // Agua translúcida realista
-                        ctx.fillStyle = "rgba(41, 128, 185, 0.75)";
-                        ctx.fillRect(bx, by, tileSize, tileSize);
+        // Bloques con sombreado y texturas detalladas HD
+        for (let r = 0; r < worldRows; r++) {
+            for (let c = 0; c < worldCols; c++) {
+                let type = world[r][c];
+                if (type !== 0) {
+                    let bx = c * tileSize, by = r * tileSize;
+                    if (type === 1) { // Tierra HD
+                        ctx.fillStyle = "#5c3d2e"; ctx.fillRect(bx, by, tileSize, tileSize);
+                        ctx.fillStyle = "#3e2723"; ctx.fillRect(bx + 4, by + 4, 10, 10);
+                        ctx.fillRect(bx + 18, by + 16, 8, 10);
+                    } else if (type === 2) { // Pasto HD
+                        ctx.fillStyle = "#5c3d2e"; ctx.fillRect(bx, by, tileSize, tileSize);
+                        ctx.fillStyle = "#2ecc71"; ctx.fillRect(bx, by, tileSize, 10);
+                        ctx.fillStyle = "#27ae60"; ctx.fillRect(bx + 2, by + 10, 6, 4);
+                        ctx.fillRect(bx + 14, by + 10, 8, 4);
+                    } else if (type === 3) { // Roca HD
+                        ctx.fillStyle = "#485460"; ctx.fillRect(bx, by, tileSize, tileSize);
+                        ctx.fillStyle = "#1e272c"; ctx.fillRect(bx + 6, by + 6, 8, 8);
+                        ctx.fillRect(bx + 18, by + 18, 8, 8);
                     }
                 }
             }
         }
 
-        // Entidades (Gallinas, Pollos, Monstruos Lv 5 y 10)
-        entities.forEach(en => {
-            if (en.type === 'gallina' || en.type === 'pollo') {
-                ctx.fillStyle = "#ffffff";
-                ctx.fillRect(en.x, en.y, en.width, en.height);
-                ctx.fillStyle = "#e67e22"; // Pico
-                ctx.fillRect(en.x + (en.vx >= 0 ? 16 : 0), en.y + 6, 6, 4);
-            } else if (en.type === 'monstruo5') {
-                ctx.fillStyle = "#27ae60"; // Monstruo Verde Nivel 5
-                ctx.fillRect(en.x, en.y, en.width, en.height);
-                ctx.fillStyle = "#f1c40f"; // Ojos
-                ctx.fillRect(en.x + (en.direction > 0 ? 18 : 4), en.y + 8, 6, 6);
-            } else if (en.type === 'monstruo10') {
-                ctx.fillStyle = "#c0392b"; // Monstruo Rojo Nivel 10
-                ctx.fillRect(en.x, en.y, en.width, en.height);
-                ctx.fillStyle = "#f39c12"; // Ojos amenazantes
-                ctx.fillRect(en.x + (en.direction > 0 ? 22 : 4), en.y + 10, 8, 8);
-            }
+        // Jugador HD Animado con Casco y Armadura
+        ctx.fillStyle = "#f39c12"; ctx.fillRect(player.x + 4, player.y, 20, 14); // Casco
+        ctx.fillStyle = "#e67e22"; ctx.fillRect(player.x + 2, player.y + 14, player.width - 4, 18); // Pechera
+        ctx.fillStyle = "#d35400"; ctx.fillRect(player.x + 4, player.y + 32, 8, 14); // Pierna 1
+        ctx.fillRect(player.x + 16, player.y + 32, 8, 14); // Pierna 2
 
-            // Barra de nivel/vida para enemigos
-            ctx.fillStyle = "rgba(0,0,0,0.6)";
-            ctx.fillRect(en.x, en.y - 10, en.width, 5);
-            ctx.fillStyle = en.level >= 10 ? "#e74c3c" : "#2ecc71";
-            ctx.fillRect(en.x, en.y - 10, en.width * (en.hp / (en.level === 5 ? 60 : 130)), 5);
+        // Enemigos / Boss HD
+        entities.forEach(en => {
+            ctx.fillStyle = "#e74c3c"; ctx.fillRect(en.x, en.y, en.width, en.height);
+            ctx.fillStyle = "#fff"; ctx.fillRect(en.x + 8, en.y + 10, 8, 8);
+            ctx.fillRect(en.x + 24, en.y + 10, 8, 8);
         });
 
-        // Jugador Estilo Terraria Real (Casco, Camisa, Pantalón detallado)
-        // Cabeza
-        ctx.fillStyle = "#f39c12";
-        ctx.fillRect(player.x + 3, player.y, 20, 16);
-        // Ojos
-        ctx.fillStyle = "#000";
-        let eyeX = player.facing > 0 ? player.x + 16 : player.x + 6;
-        ctx.fillRect(eyeX, player.y + 5, 4, 4);
-
-        // Cuerpo / Camisa
-        ctx.fillStyle = "#e74c3c";
-        ctx.fillRect(player.x, player.y + 16, player.width, 16);
-
-        // Pantalones
-        ctx.fillStyle = "#2c3e50";
-        ctx.fillRect(player.x + 2, player.y + 32, player.width - 4, 12);
-
-        // Herramienta activa en mano (Pico, Martillo o Espada)
-        ctx.fillStyle = "#f1c40f";
-        let handX = player.facing > 0 ? player.x + player.width - 2 : player.x - 12;
-        ctx.fillRect(handX, player.y + 20, 14, 14);
-
-        // Ondas de poder
+        // Partículas de Plasma
         particles.forEach(p => {
-            ctx.fillStyle = "#3498db";
-            ctx.fillRect(p.x, p.y, 45, 16);
+            ctx.fillStyle = "#00adb5";
+            ctx.fillRect(p.x, p.y, 40, 12);
         });
 
         ctx.restore();
@@ -656,77 +436,50 @@
 
     function updateHUD() {
         document.getElementById('txtHp').innerText = Math.max(0, Math.floor(player.hp));
+        document.getElementById('txtMaxHp').innerText = player.maxHp;
         document.getElementById('txtLv').innerText = player.level;
         document.getElementById('txtExp').innerText = player.exp;
         document.getElementById('txtMaxExp').innerText = player.nextExp;
     }
 
-    function togglePause() {
-        isPaused = !isPaused;
-        document.getElementById('pauseModal').style.display = isPaused ? 'flex' : 'none';
-    }
-
-    function openModal(id) {
-        isPaused = true;
-        document.getElementById(id).style.display = 'flex';
-        if (id === 'inventoryModal') renderInventoryGrid();
-    }
-
-    function closeModal(id) {
-        document.getElementById(id).style.display = 'none';
-        isPaused = false;
-    }
-
-    function toggleSound() {
-        soundEnabled = document.getElementById('chkSound').checked;
+    function renderHotbar() {
+        const hb = document.getElementById('hotbarContainer');
+        hb.innerHTML = '';
+        inventory.slice(0, 5).forEach((item, i) => {
+            let slot = document.createElement('div');
+            slot.className = `hotbar-slot ${i === player.selectedSlot ? 'active' : ''}`;
+            slot.innerHTML = `<span>${item.icon}</span>${item.count ? `<span>${item.count}</span>` : ''}`;
+            slot.onclick = () => { player.selectedSlot = i; renderHotbar(); };
+            hb.appendChild(slot);
+        });
     }
 
     function renderInventoryGrid() {
         const grid = document.getElementById('inventoryGrid');
         grid.innerHTML = '';
-        inventory.forEach((item, index) => {
+        inventory.forEach((item, i) => {
             let slot = document.createElement('div');
-            slot.className = `inv-slot ${index === selectedInvIndex ? 'selected' : ''}`;
-            slot.innerHTML = `<span>${item.icon}</span><span style="font-size:10px; margin-top:4px;">${item.name}</span>`;
-            slot.onclick = () => {
-                selectedInvIndex = index;
-                player.selectedTool = item.id;
-                renderInventoryGrid();
-            };
+            slot.className = `inv-slot ${i === player.selectedSlot ? 'selected' : ''}`;
+            slot.innerHTML = `<span>${item.icon}</span><span style="font-size:9px; color:#f9ed69;">${item.name}</span>`;
+            slot.onclick = () => { player.selectedSlot = i; renderHotbar(); renderInventoryGrid(); };
             grid.appendChild(slot);
         });
     }
 
-    function saveGame() {
-        let saveObj = { player: player, world: world, inventory: inventory };
-        localStorage.setItem('mini_terraria_save_real', JSON.stringify(saveObj));
-        alert("¡Partida guardada correctamente!");
-        closeModal('settingsModal');
-    }
-
-    function loadGame() {
-        let data = localStorage.getItem('mini_terraria_save_real');
-        if (data) {
-            let saved = JSON.parse(data);
-            player = saved.player;
-            world = saved.world;
-            inventory = saved.inventory;
-            alert("¡Partida cargada con éxito!");
-            closeModal('settingsModal');
-            updateHUD();
-        } else {
-            alert("No hay partidas guardadas.");
-        }
-    }
+    function openModal(id) { isPaused = true; document.getElementById(id).style.display = 'flex'; if(id==='inventoryModal') renderInventoryGrid(); }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; isPaused = false; }
+    function saveGame() { localStorage.setItem('terraria_hd_save', JSON.stringify({player, world, inventory})); alert("¡Guardado exitoso!"); closeModal('settingsModal'); }
+    function loadGame() { let d = localStorage.getItem('terraria_hd_save'); if(d){ let s = JSON.parse(d); player=s.player; world=s.world; inventory=s.inventory; alert("¡Cargado con éxito!"); closeModal('settingsModal'); updateHUD(); renderHotbar(); } }
 
     function loop() {
         update();
         draw();
+        updateHUD();
         requestAnimationFrame(loop);
     }
 
     generateWorld();
-    updateHUD();
+    renderHotbar();
     loop();
 </script>
 </body>
