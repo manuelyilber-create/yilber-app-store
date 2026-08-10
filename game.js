@@ -1,4 +1,3 @@
-// Configuración principal del juego con Phaser 3
 const config = {
     type: Phaser.AUTO,
     width: window.innerWidth,
@@ -13,125 +12,136 @@ const config = {
 
 const game = new Phaser.Game(config);
 
-// Variables del juego
 let player;
 let cursors, wasd;
 let resources;
-let axe;
+let currentTool = 'axe'; // 'axe', 'pickaxe', 'hammer'
 let isAttacking = false;
+let toolSprite;
 
-// Variables de UI, Inventario y Puntaje
-let score = 0;
-let wood = 0;
-let stone = 0;
-let scoreText, woodText, stoneText;
-let leaderboardTexts = [];
-let minimapGraphics;
+// Inventario
+let wood = 0, stone = 0, gold = 0, diamond = 0;
+let woodText, stoneText, goldText, diamondText;
+
+// Hotbar Slots
+let slots = {};
 
 function preload() {
-    // 1. Textura de Suelo Suave (Sin rayas duras)
-    let gridGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    gridGraphics.fillStyle(0x76b852, 1);
-    gridGraphics.fillRect(0, 0, 128, 128);
-    // Detalles sutiles de tono de césped
-    gridGraphics.fillStyle(0x6eaf49, 1);
-    gridGraphics.fillRect(0, 0, 64, 64);
-    gridGraphics.fillRect(64, 64, 64, 64);
-    gridGraphics.generateTexture('grid', 128, 128);
+    // 1. Texturas de Biomas (Terrenos)
+    let g = this.make.graphics({ x: 0, y: 0, add: false });
 
-    // 2. Jugador Mejorado (Estilo .io con sombra)
-    let playerGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    // Sombra
-    playerGraphics.fillStyle(0x000000, 0.2);
-    playerGraphics.fillCircle(32, 36, 26);
-    // Cuerpo
-    playerGraphics.fillStyle(0xf1c40f, 1);
-    playerGraphics.fillCircle(32, 32, 24);
-    playerGraphics.lineStyle(3, 0x2c3e50, 1);
-    playerGraphics.strokeCircle(32, 32, 24);
+    // Grass (Pradera)
+    g.fillStyle(0x56ab2f, 1); g.fillRect(0, 0, 100, 100);
+    g.fillStyle(0x489825, 1); g.fillRect(0, 0, 50, 50); g.fillRect(50, 50, 50, 50);
+    g.generateTexture('tile_grass', 100, 100); g.clear();
+
+    // Snow (Polo Norte)
+    g.fillStyle(0xe0f7fa, 1); g.fillRect(0, 0, 100, 100);
+    g.fillStyle(0xb2ebf2, 1); g.fillRect(0, 0, 50, 50); g.fillRect(50, 50, 50, 50);
+    g.generateTexture('tile_snow', 100, 100); g.clear();
+
+    // Desert (Desierto)
+    g.fillStyle(0xe67e22, 1); g.fillRect(0, 0, 100, 100);
+    g.fillStyle(0xd35400, 1); g.fillRect(0, 0, 50, 50); g.fillRect(50, 50, 50, 50);
+    g.generateTexture('tile_desert', 100, 100); g.clear();
+
+    // Dark / Swamp (Oscuridad)
+    g.fillStyle(0x2c3e50, 1); g.fillRect(0, 0, 100, 100);
+    g.fillStyle(0x1a252f, 1); g.fillRect(0, 0, 50, 50); g.fillRect(50, 50, 50, 50);
+    g.generateTexture('tile_dark', 100, 100); g.clear();
+
+    // 2. Jugador
+    g.fillStyle(0x000000, 0.2); g.fillCircle(30, 34, 24); // Sombra
+    g.fillStyle(0xe74c3c, 1); g.fillCircle(30, 30, 22); // Cuerpo
+    g.lineStyle(3, 0x2c3e50, 1); g.strokeCircle(30, 30, 22);
     // Manos
-    playerGraphics.fillStyle(0xf1c40f, 1);
-    playerGraphics.fillCircle(52, 18, 7);
-    playerGraphics.strokeCircle(52, 18, 7);
-    playerGraphics.fillCircle(52, 46, 7);
-    playerGraphics.strokeCircle(52, 46, 7);
-    playerGraphics.generateTexture('player_texture', 64, 64);
+    g.fillStyle(0xf1c40f, 1); g.fillCircle(48, 16, 7); g.strokeCircle(48, 16, 7);
+    g.fillCircle(48, 44, 7); g.strokeCircle(48, 44, 7);
+    g.generateTexture('player_texture', 60, 60); g.clear();
 
-    // 3. Árbol Frondoso
-    let treeGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    // Sombra
-    treeGraphics.fillStyle(0x000000, 0.25);
-    treeGraphics.fillCircle(45, 50, 40);
-    // Tronco
-    treeGraphics.fillStyle(0x795548, 1);
-    treeGraphics.fillRect(38, 50, 14, 30);
-    // Copa del árbol (Hojas estructuradas)
-    treeGraphics.fillStyle(0x2e7d32, 1);
-    treeGraphics.fillCircle(45, 40, 36);
-    treeGraphics.fillStyle(0x388e3c, 1);
-    treeGraphics.fillCircle(35, 30, 24);
-    treeGraphics.lineStyle(3, 0x1b5e20, 1);
-    treeGraphics.strokeCircle(45, 40, 36);
-    treeGraphics.generateTexture('tree', 90, 90);
+    // 3. Recursos: Pino y Árbol Frutal
+    // Pino
+    g.fillStyle(0x795548, 1); g.fillRect(35, 50, 10, 20);
+    g.fillStyle(0x1b5e20, 1); g.fillTriangle(40, 10, 15, 40, 65, 40);
+    g.fillTriangle(40, 25, 20, 55, 60, 55);
+    g.generateTexture('pine', 80, 80); g.clear();
 
-    // 4. Roca Detallada
-    let rockGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    // Sombra
-    rockGraphics.fillStyle(0x000000, 0.25);
-    rockGraphics.fillCircle(35, 38, 28);
-    // Cuerpo de la roca
-    rockGraphics.fillStyle(0x95a5a6, 1);
-    rockGraphics.fillCircle(35, 35, 26);
-    rockGraphics.fillStyle(0x7f8c8d, 1);
-    rockGraphics.fillCircle(30, 30, 16);
-    rockGraphics.lineStyle(3, 0x34495e, 1);
-    rockGraphics.strokeCircle(35, 35, 26);
-    rockGraphics.generateTexture('rock', 70, 70);
+    // Árbol Frutal
+    g.fillStyle(0x795548, 1); g.fillRect(35, 45, 10, 25);
+    g.fillStyle(0x2e7d32, 1); g.fillCircle(40, 35, 30);
+    g.fillStyle(0xe74c3c, 1); g.fillCircle(30, 25, 4); g.fillCircle(50, 30, 4); // Frutas
+    g.generateTexture('tree', 80, 80); g.clear();
 
-    // 5. Hacha Diseñada
-    let axeGraphics = this.make.graphics({ x: 0, y: 0, add: false });
-    // Mango de madera
-    axeGraphics.fillStyle(0x8d6e63, 1);
-    axeGraphics.fillRect(6, 10, 6, 25);
-    // Hoja de metal
-    axeGraphics.fillStyle(0xbdc3c7, 1);
-    axeGraphics.fillTriangle(0, 5, 18, 5, 9, 18);
-    axeGraphics.lineStyle(1, 0x2c3e50, 1);
-    axeGraphics.strokeTriangle(0, 5, 18, 5, 9, 18);
-    axeGraphics.generateTexture('axe', 24, 38);
+    // 4. Minerales (Roca, Oro, Diamante)
+    // Roca
+    g.fillStyle(0x7f8c8d, 1); g.fillCircle(30, 30, 24);
+    g.lineStyle(3, 0x2c3e50, 1); g.strokeCircle(30, 30, 24);
+    g.generateTexture('rock', 60, 60); g.clear();
+
+    // Oro
+    g.fillStyle(0xf1c40f, 1); g.fillCircle(30, 30, 24);
+    g.fillStyle(0xf39c12, 1); g.fillCircle(25, 25, 10);
+    g.lineStyle(3, 0xd35400, 1); g.strokeCircle(30, 30, 24);
+    g.generateTexture('gold_rock', 60, 60); g.clear();
+
+    // Diamante
+    g.fillStyle(0x00d2d3, 1); g.fillCircle(30, 30, 24);
+    g.fillStyle(0x54a0ff, 1); g.fillCircle(25, 25, 10);
+    g.lineStyle(3, 0x2e86de, 1); g.strokeCircle(30, 30, 24);
+    g.generateTexture('diamond_rock', 60, 60); g.clear();
+
+    // 5. Herramientas
+    // Hacha
+    g.fillStyle(0x8d6e63, 1); g.fillRect(5, 12, 6, 22);
+    g.fillStyle(0xbdc3c7, 1); g.fillRect(2, 5, 14, 8);
+    g.generateTexture('axe', 20, 35); g.clear();
+
+    // Pico
+    g.fillStyle(0x8d6e63, 1); g.fillRect(7, 12, 6, 22);
+    g.fillStyle(0x7f8c8d, 1); g.fillRect(0, 5, 20, 6);
+    g.generateTexture('pickaxe', 20, 35); g.clear();
+
+    // Martillo
+    g.fillStyle(0x8d6e63, 1); g.fillRect(7, 12, 6, 22);
+    g.fillStyle(0x34495e, 1); g.fillRect(2, 4, 16, 10);
+    g.generateTexture('hammer', 20, 35); g.clear();
 }
 
 function create() {
-    const MAP_WIDTH = 3000;
-    const MAP_HEIGHT = 3000;
+    const MAP_SIZE = 6000;
+    this.physics.world.setBounds(0, 0, MAP_SIZE, MAP_SIZE);
 
-    // Fondo repetitivo de hierba limpia
-    this.add.tileSprite(MAP_WIDTH / 2, MAP_HEIGHT / 2, MAP_WIDTH, MAP_HEIGHT, 'grid');
-    this.physics.world.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+    // DIBUJAR LOS 4 BIOMAS
+    // Polo Norte (Arriba)
+    this.add.tileSprite(MAP_SIZE / 2, 750, MAP_SIZE, 1500, 'tile_snow');
+    // Desierto (Abajo)
+    this.add.tileSprite(MAP_SIZE / 2, MAP_SIZE - 750, MAP_SIZE, 1500, 'tile_desert');
+    // Oscuridad (Derecha Centro)
+    this.add.tileSprite(MAP_SIZE - 1000, MAP_SIZE / 2, 2000, 3000, 'tile_dark');
+    // Pradera (Centro / Izquierda)
+    this.add.tileSprite(2000, MAP_SIZE / 2, 4000, 3000, 'tile_grass');
 
-    // Grupo de Recursos
+    // GRUPO DE RECURSOS
     resources = this.physics.add.staticGroup();
-    spawnResources(resources, 'tree', 45, MAP_WIDTH, MAP_HEIGHT);
-    spawnResources(resources, 'rock', 35, MAP_WIDTH, MAP_HEIGHT);
+    generateWorldResources(resources, MAP_SIZE);
 
-    // Jugador
-    player = this.physics.add.sprite(MAP_WIDTH / 2, MAP_HEIGHT / 2, 'player_texture');
+    // JUGADOR
+    player = this.physics.add.sprite(2000, 3000, 'player_texture');
     player.setCollideWorldBounds(true);
     player.setDepth(10);
 
-    // Hacha
-    axe = this.add.sprite(player.x, player.y, 'axe');
-    axe.setOrigin(0.5, 1.2);
-    axe.setDepth(11);
+    // HERRAMIENTA VISIBLE
+    toolSprite = this.add.sprite(player.x, player.y, 'axe');
+    toolSprite.setOrigin(0.5, 1.2);
+    toolSprite.setDepth(11);
 
-    // Colisión física entre jugador y recursos
     this.physics.add.collider(player, resources);
 
-    // Cámara
-    this.cameras.main.setBounds(0, 0, MAP_WIDTH, MAP_HEIGHT);
+    // CÁMARA
+    this.cameras.main.setBounds(0, 0, MAP_SIZE, MAP_SIZE);
     this.cameras.main.startFollow(player, true, 0.1, 0.1);
 
-    // Controles teclado
+    // CONTROLES
     cursors = this.input.keyboard.createCursorKeys();
     wasd = this.input.keyboard.addKeys({
         up: Phaser.Input.Keyboard.KeyCodes.W,
@@ -140,29 +150,30 @@ function create() {
         right: Phaser.Input.Keyboard.KeyCodes.D
     });
 
-    // Interfaz Gráfica (UI)
+    // Cambiar herramientas con teclas 1, 2, 3
+    this.input.keyboard.on('keydown-ONE', () => selectTool('axe'));
+    this.input.keyboard.on('keydown-TWO', () => selectTool('pickaxe'));
+    this.input.keyboard.on('keydown-THREE', () => selectTool('hammer'));
+
     drawUI(this);
 
-    // Mini-mapa Gráfico
-    minimapGraphics = this.add.graphics();
-    minimapGraphics.setScrollFactor(0);
-    minimapGraphics.setDepth(100);
-
-    // Apuntar con el mouse
-    this.input.on('pointermove', function (pointer) {
+    // Girar personaje hacia la posición del mouse
+    this.input.on('pointermove', (pointer) => {
         let angle = Phaser.Math.Angle.Between(player.x, player.y, pointer.worldX, pointer.worldY);
         player.setRotation(angle);
-    }, this);
+    });
 
-    // Ataque / Recolección al hacer clic
-    this.input.on('pointerdown', function () {
-        hitResource(this);
-    }, this);
+    // Acción de Golpear al hacer clic
+    this.input.on('pointerdown', (pointer) => {
+        // Ignorar clics en la barra de herramientas UI
+        if (pointer.y > window.innerHeight - 80) return;
+        useTool(this, pointer);
+    });
 }
 
 function update() {
     player.setVelocity(0);
-    const speed = 260;
+    const speed = 280;
 
     if (cursors.left.isDown || wasd.left.isDown) player.setVelocityX(-speed);
     else if (cursors.right.isDown || wasd.right.isDown) player.setVelocityX(speed);
@@ -172,133 +183,118 @@ function update() {
 
     player.body.velocity.normalize().scale(speed);
 
-    // Movimiento del hacha sincronizado con el jugador
-    axe.x = player.x + Math.cos(player.rotation) * 22;
-    axe.y = player.y + Math.sin(player.rotation) * 22;
+    // Sincronizar herramienta con jugador
+    toolSprite.x = player.x + Math.cos(player.rotation) * 25;
+    toolSprite.y = player.y + Math.sin(player.rotation) * 25;
     if (!isAttacking) {
-        axe.rotation = player.rotation + Math.PI / 2;
-    }
-
-    // Actualizar el Mini-mapa
-    updateMinimap();
-}
-
-function spawnResources(group, type, amount, mapWidth, mapHeight) {
-    for (let i = 0; i < amount; i++) {
-        let x = Phaser.Math.Between(150, mapWidth - 150);
-        let y = Phaser.Math.Between(150, mapHeight - 150);
-        let res = group.create(x, y, type);
-        res.resourceType = type;
-        res.health = 3;
-        res.refreshBody();
+        toolSprite.rotation = player.rotation + Math.PI / 2;
     }
 }
 
-function hitResource(scene) {
+// Generación de recursos distribuida por Biomas
+function generateWorldResources(group, mapSize) {
+    for (let i = 0; i < 70; i++) {
+        // Pinos en Polo Norte
+        spawnRes(group, Phaser.Math.Between(200, mapSize - 200), Phaser.Math.Between(200, 1300), 'pine', 'tree', 4);
+        // Rocas de Diamante en Oscuridad
+        spawnRes(group, Phaser.Math.Between(4200, mapSize - 200), Phaser.Math.Between(1600, 4400), 'diamond_rock', 'diamond', 6);
+        // Rocas de Oro en Desierto
+        spawnRes(group, Phaser.Math.Between(200, mapSize - 200), Phaser.Math.Between(4700, mapSize - 200), 'gold_rock', 'gold', 5);
+        // Árboles y Rocas en Pradera
+        spawnRes(group, Phaser.Math.Between(200, 3800), Phaser.Math.Between(1600, 4400), 'tree', 'tree', 3);
+        spawnRes(group, Phaser.Math.Between(200, 3800), Phaser.Math.Between(1600, 4400), 'rock', 'rock', 3);
+    }
+}
+
+function spawnRes(group, x, y, texture, type, hp) {
+    let res = group.create(x, y, texture);
+    res.resourceType = type;
+    res.health = hp;
+    res.refreshBody();
+}
+
+// Lógica de uso de herramientas
+function useTool(scene, pointer) {
     if (isAttacking) return;
     isAttacking = true;
 
+    // Animación de hachazo/picado
     scene.tweens.add({
-        targets: axe,
-        angle: axe.angle + 45,
+        targets: toolSprite,
+        angle: toolSprite.angle + 50,
         duration: 90,
         yoyo: true,
         onComplete: () => { isAttacking = false; }
     });
 
+    // Detectar golpe a recursos cercanos
     resources.getChildren().forEach((res) => {
-        let distance = Phaser.Math.Distance.Between(player.x, player.y, res.x, res.y);
-        if (distance < 75) {
-            res.health -= 1;
-            res.setAlpha(0.6);
+        let dist = Phaser.Math.Distance.Between(player.x, player.y, res.x, res.y);
+        if (dist < 100) {
+            let dmg = 1;
+
+            // Bonificación por herramienta correcta
+            if (currentTool === 'axe' && res.resourceType === 'tree') dmg = 2;
+            if (currentTool === 'pickaxe' && (res.resourceType === 'rock' || res.resourceType === 'gold' || res.resourceType === 'diamond')) dmg = 2;
+
+            res.health -= dmg;
+            res.setAlpha(0.5);
             scene.time.delayedCall(100, () => res.setAlpha(1));
 
-            if (res.resourceType === 'tree') {
-                wood += 5;
-                woodText.setText('🪵 Madera: ' + wood);
-            } else if (res.resourceType === 'rock') {
-                stone += 5;
-                stoneText.setText('🪨 Piedra: ' + stone);
-            }
-
-            score += 15;
-            scoreText.setText('Puntos: ' + score);
-            updateLeaderboard();
+            // Entregar Recursos
+            if (res.resourceType === 'tree') { wood += 5; woodText.setText('🪵 Madera: ' + wood); }
+            else if (res.resourceType === 'rock') { stone += 5; stoneText.setText('🪨 Piedra: ' + stone); }
+            else if (res.resourceType === 'gold') { gold += 3; goldText.setText('🟡 Oro: ' + gold); }
+            else if (res.resourceType === 'diamond') { diamond += 1; diamondText.setText('🔷 Diamante: ' + diamond); }
 
             if (res.health <= 0) {
-                let type = res.resourceType;
                 res.destroy();
-
-                scene.time.delayedCall(4000, () => {
-                    spawnResources(resources, type, 1, 3000, 3000);
-                });
             }
         }
     });
 }
 
+function selectTool(type) {
+    currentTool = type;
+    toolSprite.setTexture(type);
+
+    // Resaltar en la UI
+    Object.keys(slots).forEach(key => slots[key].setStrokeStyle(2, 0xffffff));
+    if (slots[type]) slots[type].setStrokeStyle(4, 0xf1c40f);
+}
+
 function drawUI(scene) {
-    let uiGraphics = scene.add.graphics();
-    uiGraphics.setScrollFactor(0);
-    uiGraphics.setDepth(100);
+    let ui = scene.add.graphics().setScrollFactor(0).setDepth(100);
 
-    // Panel de Inventario (Izquierda)
-    uiGraphics.fillStyle(0x000000, 0.6);
-    uiGraphics.fillRoundedRect(15, 15, 200, 110, 10);
+    // Panel de Recursos (Arriba Izquierda)
+    ui.fillStyle(0x000000, 0.6);
+    ui.fillRoundedRect(15, 15, 180, 140, 10);
 
-    scoreText = scene.add.text(25, 25, 'Puntos: 0', { font: 'bold 18px Arial', fill: '#ffffff' }).setScrollFactor(0).setDepth(101);
-    woodText = scene.add.text(25, 55, '🪵 Madera: 0', { font: '16px Arial', fill: '#f39c12' }).setScrollFactor(0).setDepth(101);
-    stoneText = scene.add.text(25, 82, '🪨 Piedra: 0', { font: '16px Arial', fill: '#bdc3c7' }).setScrollFactor(0).setDepth(101);
+    woodText = scene.add.text(25, 25, '🪵 Madera: 0', { font: 'bold 15px Arial', fill: '#f39c12' }).setScrollFactor(0).setDepth(101);
+    stoneText = scene.add.text(25, 55, '🪨 Piedra: 0', { font: 'bold 15px Arial', fill: '#bdc3c7' }).setScrollFactor(0).setDepth(101);
+    goldText = scene.add.text(25, 85, '🟡 Oro: 0', { font: 'bold 15px Arial', fill: '#f1c40f' }).setScrollFactor(0).setDepth(101);
+    diamondText = scene.add.text(25, 115, '🔷 Diamante: 0', { font: 'bold 15px Arial', fill: '#00d2d3' }).setScrollFactor(0).setDepth(101);
 
-    // Panel de Leaderboard (Derecha Superior)
-    let rightX = window.innerWidth - 200;
-    uiGraphics.fillStyle(0x000000, 0.6);
-    uiGraphics.fillRoundedRect(rightX, 15, 185, 130, 10);
+    // HOTBAR - CASILLAS DE HERRAMIENTAS (Abajo Centro)
+    let startX = window.innerWidth / 2 - 100;
+    let startY = window.innerHeight - 70;
 
-    scene.add.text(rightX + 15, 22, 'Leaderboard', { font: 'bold 16px Arial', fill: '#f1c40f' }).setScrollFactor(0).setDepth(101);
-    
-    leaderboardTexts[0] = scene.add.text(rightX + 15, 50, '1. Jugador#1 - 2500', { font: '13px Arial', fill: '#cccccc' }).setScrollFactor(0).setDepth(101);
-    leaderboardTexts[1] = scene.add.text(rightX + 15, 70, '2. Jugador#2 - 1200', { font: '13px Arial', fill: '#cccccc' }).setScrollFactor(0).setDepth(101);
-    leaderboardTexts[2] = scene.add.text(rightX + 15, 95, '3. TÚ: 0', { font: 'bold 13px Arial', fill: '#2ecc71' }).setScrollFactor(0).setDepth(101);
+    let toolNames = ['axe', 'pickaxe', 'hammer'];
+    let icons = ['🪓', '⛏️', '🔨'];
 
-    // Controles Táctiles estilo Joystick
-    uiGraphics.lineStyle(5, 0xffffff, 0.5);
-    uiGraphics.strokeCircle(100, window.innerHeight - 100, 50);
-    uiGraphics.fillStyle(0xffffff, 0.3);
-    uiGraphics.fillCircle(100, window.innerHeight - 100, 25);
+    toolNames.forEach((name, i) => {
+        let x = startX + i * 70;
+        let box = scene.add.rectangle(x, startY, 60, 60, 0x000000, 0.7).setScrollFactor(0).setDepth(101).setInteractive();
+        box.setStrokeStyle(2, 0xffffff);
 
-    uiGraphics.lineStyle(5, 0xffffff, 0.5);
-    uiGraphics.strokeCircle(window.innerWidth - 100, window.innerHeight - 100, 50);
-    uiGraphics.fillStyle(0xffffff, 0.3);
-    uiGraphics.fillCircle(window.innerWidth - 100, window.innerHeight - 100, 25);
-}
+        scene.add.text(x - 12, startY - 18, icons[i], { font: '26px Arial' }).setScrollFactor(0).setDepth(102);
+        scene.add.text(x - 24, startY - 26, (i + 1).toString(), { font: 'bold 12px Arial', fill: '#ffffff' }).setScrollFactor(0).setDepth(102);
 
-function updateLeaderboard() {
-    if (leaderboardTexts[2]) {
-        leaderboardTexts[2].setText('3. TÚ: ' + score);
-    }
-}
+        box.on('pointerdown', () => selectTool(name));
+        slots[name] = box;
+    });
 
-function updateMinimap() {
-    if (!minimapGraphics || !player) return;
-
-    minimapGraphics.clear();
-    let size = 110;
-    let margin = 15;
-    let x = window.innerWidth - size - margin;
-    let y = window.innerHeight - size - margin;
-
-    // Cuadro del Mini-mapa
-    minimapGraphics.fillStyle(0x000000, 0.6);
-    minimapGraphics.fillRoundedRect(x, y, size, size, 8);
-    minimapGraphics.lineStyle(2, 0xffffff, 0.8);
-    minimapGraphics.strokeRoundedRect(x, y, size, size, 8);
-
-    // Punto verde del jugador
-    let px = x + (player.x / 3000) * size;
-    let py = y + (player.y / 3000) * size;
-    minimapGraphics.fillStyle(0x2ecc71, 1);
-    minimapGraphics.fillCircle(px, py, 4);
+    selectTool('axe'); // Seleccionar Hacha por defecto
 }
 
 window.addEventListener('resize', () => {
