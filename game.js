@@ -18,8 +18,14 @@ let resources;
 let axe;
 let isAttacking = false;
 
+// Variables de Inventario y Puntuación
+let score = 0;
+let wood = 0;
+let stone = 0;
+let scoreText, woodText, stoneText;
+
 function preload() {
-    // 1. Grid
+    // 1. Grid (Fondo)
     let gridGraphics = this.make.graphics({ x: 0, y: 0, add: false });
     gridGraphics.fillStyle(0x71aa34, 1);
     gridGraphics.fillRect(0, 0, 100, 100);
@@ -40,7 +46,7 @@ function preload() {
     playerGraphics.strokeCircle(50, 45, 8);
     playerGraphics.generateTexture('player_texture', 60, 60);
 
-    // 3. Tree
+    // 3. Tree (Árbol)
     let treeGraphics = this.make.graphics({ x: 0, y: 0, add: false });
     treeGraphics.fillStyle(0x2d6a4f, 1);
     treeGraphics.fillCircle(40, 40, 35);
@@ -48,7 +54,7 @@ function preload() {
     treeGraphics.strokeCircle(40, 40, 35);
     treeGraphics.generateTexture('tree', 80, 80);
 
-    // 4. Rock
+    // 4. Rock (Roca)
     let rockGraphics = this.make.graphics({ x: 0, y: 0, add: false });
     rockGraphics.fillStyle(0x7f8c8d, 1);
     rockGraphics.fillCircle(30, 30, 25);
@@ -56,7 +62,7 @@ function preload() {
     rockGraphics.strokeCircle(30, 30, 25);
     rockGraphics.generateTexture('rock', 60, 60);
 
-    // 5. Axe
+    // 5. Axe (Hacha)
     let axeGraphics = this.make.graphics({ x: 0, y: 0, add: false });
     axeGraphics.fillStyle(0x8e44ad, 1);
     axeGraphics.fillRect(0, 0, 10, 25);
@@ -134,6 +140,7 @@ function spawnResources(group, type, amount, mapWidth, mapHeight) {
         let x = Phaser.Math.Between(200, mapWidth - 200);
         let y = Phaser.Math.Between(200, mapHeight - 200);
         let res = group.create(x, y, type);
+        res.resourceType = type;
         res.health = 3;
         res.refreshBody();
     }
@@ -157,7 +164,28 @@ function hitResource(scene) {
             res.health -= 1;
             res.setAlpha(0.5);
             scene.time.delayedCall(100, () => res.setAlpha(1));
-            if (res.health <= 0) res.destroy();
+
+            // Sumar recursos por golpe
+            if (res.resourceType === 'tree') {
+                wood += 5;
+                woodText.setText('🪵 Madera: ' + wood);
+            } else if (res.resourceType === 'rock') {
+                stone += 5;
+                stoneText.setText('🪨 Piedra: ' + stone);
+            }
+
+            score += 10;
+            scoreText.setText('Puntos: ' + score);
+
+            if (res.health <= 0) {
+                let type = res.resourceType;
+                res.destroy();
+
+                // Reaparecer recurso en otra posición después de 5 segundos
+                scene.time.delayedCall(5000, () => {
+                    spawnResources(resources, type, 1, 3000, 3000);
+                });
+            }
         }
     });
 }
@@ -167,6 +195,16 @@ function drawUI(scene) {
     uiGraphics.setScrollFactor(0);
     uiGraphics.setDepth(100);
 
+    // Fondo del Inventario (Arriba a la izquierda)
+    uiGraphics.fillStyle(0x000000, 0.5);
+    uiGraphics.fillRect(20, 20, 220, 110);
+
+    // Textos de Recursos y Puntos
+    scoreText = scene.add.text(30, 30, 'Puntos: 0', { font: '20px Arial', fill: '#ffffff' }).setScrollFactor(0).setDepth(101);
+    woodText = scene.add.text(30, 60, '🪵 Madera: 0', { font: '18px Arial', fill: '#ffcc00' }).setScrollFactor(0).setDepth(101);
+    stoneText = scene.add.text(30, 90, '🪨 Piedra: 0', { font: '18px Arial', fill: '#cccccc' }).setScrollFactor(0).setDepth(101);
+
+    // Controles Táctiles (Joysticks)
     uiGraphics.lineStyle(6, 0xffffff, 0.6);
     uiGraphics.strokeCircle(120, window.innerHeight - 120, 60);
     uiGraphics.fillStyle(0xffffff, 0.4);
