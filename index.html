@@ -1,37 +1,18 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Mi Juego 3D Web</title>
-  
-  <!-- CSS dividido por responsabilidades -->
-  <link rel="stylesheet" href="css/layout.css" />
-  <link rel="stylesheet" href="css/style3d.css" />
-  <link rel="stylesheet" href="css/ui.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Juego de Supervivencia IO</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Carga del motor gráfico Phaser 3 -->
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.55.2/dist/phaser.min.js"></script>
 </head>
 <body>
+    <!-- Contenedor del juego -->
+    <div id="game-container"></div>
 
-  <!-- Fondo 3D separado -->
-  <canvas id="bg-canvas"></canvas>
-
-  <!-- Contenedor del Juego Centrado -->
-  <main class="game-container">
-    <header class="game-header">
-      <h1>MI JUEGO WEB</h1>
-    </header>
-
-    <div id="game-view" class="card-3d">
-      <!-- Aquí corre la vista del juego -->
-      <canvas id="game-canvas"></canvas>
-    </div>
-
-    <footer class="game-ui">
-      <button id="btn-start" class="btn-3d">Iniciar Juego</button>
-    </footer>
-  </main>
-
-  <!-- JavaScript Modular -->
-  <script type="module" src="js/main.js"></script>
+    <!-- Script principal de lógica -->
+    <script src="js/game.js"></script>
 </body>
 </html>
