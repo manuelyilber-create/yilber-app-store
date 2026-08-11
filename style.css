@@ -2,48 +2,50 @@
     margin: 0; padding: 0; box-sizing: border-box;
     user-select: none; -webkit-user-select: none; touch-action: none;
 }
-body, html { width: 100%; height: 100%; overflow: hidden; background: #000; font-family: sans-serif; }
+body, html { width: 100%; height: 100%; overflow: hidden; background: #111; font-family: 'Courier New', Courier, monospace; }
 #gameCanvas { width: 100vw; height: 100vh; display: block; }
 
-/* Overlays */
+/* Menú de Carga */
 #loading-overlay {
     position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-    background: #111; color: #fff; display: flex; justify-content: center; align-items: center; z-index: 100;
+    background: #000; color: #fff; display: flex; justify-content: center; align-items: center; z-index: 1000;
 }
 .loader-content { text-align: center; }
 #start-btn {
-    margin-top: 20px; padding: 15px 30px; background: #22c55e; color: white;
-    border: none; border-radius: 10px; font-size: 1.2rem; cursor: pointer;
+    margin-top: 20px; padding: 15px 40px; background: #e67e22; color: white;
+    border: 3px solid #fff; border-radius: 5px; font-size: 1.2rem; cursor: pointer; font-weight: bold;
 }
 
 /* HUD */
-#hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; }
+#hud { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 10; color: white; }
 #leaderboard {
-    position: absolute; top: 20px; right: 20px; background: rgba(0,0,0,0.5);
-    padding: 15px; border-radius: 10px; color: #fff; width: 180px; pointer-events: auto;
+    position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.7);
+    padding: 10px; border-radius: 5px; width: 160px; pointer-events: auto; font-size: 0.8rem;
 }
 .lb-row { display: flex; justify-content: space-between; opacity: 0.7; }
-.lb-row.active { color: #f59e0b; opacity: 1; font-weight: bold; }
+.lb-row.active { color: #f1c40f; opacity: 1; }
 
 #hotbar {
-    position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-    display: flex; gap: 10px; pointer-events: auto;
+    position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+    display: flex; gap: 8px; pointer-events: auto;
 }
 .slot {
-    width: 60px; height: 60px; background: rgba(0,0,0,0.6); border: 2px solid rgba(255,255,255,0.2);
-    border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 1.5rem;
+    width: 50px; height: 50px; background: rgba(0,0,0,0.8); border: 2px solid #555;
+    display: flex; justify-content: center; align-items: center; font-size: 1.5rem;
 }
-.slot.active { border-color: #f59e0b; transform: scale(1.1); }
+.slot.active { border-color: #e67e22; background: rgba(230, 126, 34, 0.2); }
 
-/* Controles Táctiles */
-#joystick-zone { position: absolute; bottom: 0; left: 0; width: 50%; height: 50%; pointer-events: auto; }
-#joystick-base {
-    position: absolute; width: 100px; height: 100px; background: rgba(255,255,255,0.1);
-    border: 2px solid rgba(255,255,255,0.2); border-radius: 50%; display: none; transform: translate(-50%, -50%);
+/* Zonas Táctiles */
+#action-zones { position: absolute; bottom: 0; left: 0; width: 100%; height: 100%; }
+#joystick-region { position: absolute; bottom: 20px; left: 20px; width: 40%; height: 40%; pointer-events: auto; }
+#mine-btn {
+    position: absolute; bottom: 30px; right: 120px; width: 70px; height: 70px;
+    background: rgba(231, 76, 60, 0.7); border: 3px solid #fff; border-radius: 50%;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; pointer-events: auto; font-size: 1.5rem;
 }
-#joystick-stick { position: absolute; width: 40px; height: 40px; background: #fff; border-radius: 50%; top: 30px; left: 30px; }
-#attack-btn {
-    position: absolute; bottom: 40px; right: 40px; width: 80px; height: 80px;
-    background: rgba(239, 68, 68, 0.8); border: none; border-radius: 50%; font-size: 2rem;
-    pointer-events: auto; color: white; display: flex; justify-content: center; align-items: center;
+#mine-btn .btn-desc { font-size: 0.6rem; font-weight: bold; }
+#jump-btn {
+    position: absolute; bottom: 30px; right: 30px; width: 70px; height: 70px;
+    background: rgba(52, 152, 219, 0.7); border: 3px solid #fff; border-radius: 50%;
+    display: flex; justify-content: center; align-items: center; pointer-events: auto; font-size: 1.5rem;
 }
