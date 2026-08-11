@@ -1,73 +1,68 @@
 // js/main.js
+import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
 import { GameScene } from './Scene.js';
+import { World } from './World.js';
 import { Player } from './Player.js';
-import { Terrain } from './Terrain.js';
 import { Controls } from './Controls.js';
 
 class Game {
     constructor() {
         this.canvas = document.getElementById('gameCanvas');
         this.loadingOverlay = document.getElementById('loading-overlay');
-        this.loadingText = document.getElementById('loading-text');
         this.startBtn = document.getElementById('start-btn');
         this.hud = document.getElementById('hud');
-
+        
+        this.gameActive = false;
         this.init();
     }
 
     async init() {
-        // 1. Inicializar Escena y Motor Base
+        // 1. Motor Gráfico Base
         this.gameScene = new GameScene(this.canvas);
         
-        // 2. Inicializar Terreno (Mundo)
-        this.terrain = new Terrain(this.gameScene.scene);
+        // 2. Generación de Mundo Procedural
+        this.world = new World(this.gameScene.scene);
+        await this.world.generate(); // Generar bloques
 
-        // 3. Inicializar Personaje (¡Cargando modelo realista!)
-        this.player = new Player(this.gameScene.scene);
+        // 3. Personaje (Físicas y Modelo)
+        this.player = new Player(this.gameScene.scene, this.world);
         
-        try {
-            this.loadingText.innerText = "Cargando personaje realista...";
-            await this.player.load(); // Esperar a que el modelo se cargue al 100%
-            
-            // 4. Inicializar Controles (Uniendo personaje y cámara)
-            this.controls = new Controls(this.player, this.gameScene.camera, this.canvas);
+        // 4. Controles (PC + Táctil)
+        this.controls = new Controls(this.player, this.gameScene.camera, this.world, this.canvas);
 
-            this.finalizeInit();
-        } catch (error) {
-            this.loadingText.innerText = "Error crítico al cargar. Revisa la consola.";
-            console.error("Perfección interrumpida:", error);
-        }
+        this.finalizeInit();
     }
 
     finalizeInit() {
-        this.loadingText.style.display = 'none';
+        document.getElementById('loading-text').style.display = 'none';
         this.startBtn.style.display = 'block';
-
-        this.startBtn.addEventListener('click', () => {
-            this.loadingOverlay.style.display = 'none';
-            this.hud.style.display = 'block';
-            this.startLoop();
-        });
+        this.startBtn.onclick = () => this.start();
     }
 
-    startLoop() {
-        const clock = new THREE.Clock();
+    start() {
+        this.loadingOverlay.style.display = 'none';
+        this.hud.style.display = 'block';
+        this.gameActive = true;
+        this.loop();
+    }
 
+    loop() {
+        const clock = new THREE.Clock();
         const animate = () => {
             requestAnimationFrame(animate);
-            const deltaTime = clock.getDelta();
+            if (!this.gameActive) return;
 
-            // Actualizar lógica (Sin errores, cada módulo hace lo suyo)
+            const deltaTime = clock.getDelta();
+            
+            // Actualizar Módulos
             this.controls.update(deltaTime);
             this.player.update(deltaTime);
-            this.terrain.update(deltaTime);
-
-            // Renderizar
+            
+            // Renderizar Escena
             this.gameScene.render();
         };
         animate();
     }
 }
 
-// Iniciar cuando todo el HTML cargue
-window.onload = () => { new Game(); };
+new Game();
