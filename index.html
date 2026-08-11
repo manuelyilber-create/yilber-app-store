@@ -3,50 +3,49 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Survival 3D Profesional .IO</title>
+    <title>Lostminer 3D Clone - Perfecto</title>
     <link rel="stylesheet" href="style.css">
-    <!-- Carga de Three.js y librerías necesarias -->
+    <!-- Three.js Base -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
 
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Pantalla de Carga/Inicio -->
+    <!-- UI Overlay: Pantalla de Carga/Menú -->
     <div id="loading-overlay">
         <div class="loader-content">
-            <h1>SURVIVAL 3D</h1>
-            <p id="loading-text">Cargando mundo perfecto...</p>
-            <button id="start-btn" style="display:none;">INICIAR PARTIDA</button>
+            <h1>LOSTMINER 3D</h1>
+            <p id="loading-text">Generando mundo procedural...</p>
+            <button id="start-btn" style="display:none;">EMPEZAR AVENTURA</button>
         </div>
     </div>
 
-    <!-- HUD del Juego (Interfaz) -->
+    <!-- HUD de Juego -->
     <div id="hud" style="display:none;">
+        <!-- Clasificación -->
         <div id="leaderboard">
-            <h3>Clasificación</h3>
-            <div class="lb-row active"><span>Yilber</span> <span>0</span></div>
-            <div class="lb-row"><span>Player#112</span> <span>150</span></div>
+            <h3>Top Mineros</h3>
+            <div class="lb-row active"><span>Yilber</span> <span>0 m</span></div>
+            <div class="lb-row"><span>Bot1</span> <span>15 m</span></div>
         </div>
 
+        <!-- Hotbar (Inventario Rápido) -->
         <div id="hotbar">
-            <div class="slot active">🪓</div>
-            <div class="slot">⛏️</div>
-            <div class="slot">⚔️</div>
+            <div class="slot active" data-item="pickaxe">⛏️</div>
+            <div class="slot" data-item="block_dirt">🟫</div>
+            <div class="slot" data-item="torch">🔦</div>
         </div>
 
-        <!-- Controles Táctiles (Joysticks invisibles hasta tocar) -->
-        <div id="joystick-zone">
-            <div id="joystick-base">
-                <div id="joystick-stick"></div>
-            </div>
+        <!-- Zonas de Control Táctil (Joysticks) -->
+        <div id="action-zones">
+            <div id="joystick-region"></div>
+            <div id="mine-btn">⛏️ <span class="btn-desc">MINAR</span></div>
+            <div id="jump-btn">⬆️</div>
         </div>
-        
-        <button id="attack-btn">⚔️</button>
     </div>
 
-    <!-- PUNTO DE ENTRADA DEL JUEGO -->
+    <!-- PUNTO DE ENTRADA MODULAR -->
     <script type="module" src="js/main.js"></script>
 </body>
 </html>
