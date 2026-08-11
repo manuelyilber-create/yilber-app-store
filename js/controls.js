@@ -1,129 +1,103 @@
 // js/Controls.js
+import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
+
 export class Controls {
-    constructor(player, camera, canvas) {
+    constructor(player, camera, world, canvas) {
         this.player = player;
         this.camera = camera;
+        this.world = world;
         this.canvas = canvas;
         
-        this.cameraOffset = new THREE.Vector3(0, 20, 15); // Vista .io perfecta
-        
-        // Estado de teclas
         this.keys = {};
-        this.moveDir = new THREE.Vector3();
-        
-        // Estado Táctil (Joystick)
-        this.joystickZone = document.getElementById('joystick-zone');
-        this.joystickBase = document.getElementById('joystick-base');
-        this.joystickStick = document.getElementById('joystick-stick');
-        this.touchId = null;
-        this.touchStartPos = new THREE.Vector2();
-        this.joystickVector = new THREE.Vector2(); // -1 a 1
+        this.touchMoveDir = 0; // -1, 0, 1
 
-        this.initPCControls();
-        this.initTouchControls();
+        this.initPC();
+        this.initTouch();
     }
 
-    initPCControls() {
+    initPC() {
         window.addEventListener('keydown', (e) => this.keys[e.key.toLowerCase()] = true);
         window.addEventListener('keyup', (e) => this.keys[e.key.toLowerCase()] = false);
+        
+        // Salto (Espacio)
+        window.addEventListener('keydown', (e) => { if(e.key === ' ') this.player.jump(); });
+
+        // Minar con Click (PC)
+        window.addEventListener('mousedown', (e) => this.mine(e));
     }
 
-    initTouchControls() {
-        this.joystickZone.addEventListener('touchstart', (e) => this.onTouchStart(e));
-        this.joystickZone.addEventListener('touchmove', (e) => this.onTouchMove(e));
-        this.joystickZone.addEventListener('touchend', (e) => this.onTouchEnd(e));
-        
-        // Botón de ataque
-        document.getElementById('attack-btn').addEventListener('touchstart', () => this.attack());
+    initTouch() {
+        // Región de movimiento (Izquierda)
+        const region = document.getElementById('joystick-region');
+        region.addEventListener('touchstart', (e) => this.onTouchStart(e));
+        region.addEventListener('touchmove', (e) => this.onTouchMove(e));
+        region.addEventListener('touchend', () => this.touchMoveDir = 0);
+
+        // Botones de acción
+        document.getElementById('mine-btn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.mineTouch();
+        });
+        document.getElementById('jump-btn').addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            this.player.jump();
+        });
     }
 
     onTouchStart(e) {
-        if (this.touchId !== null) return; // Ya hay un toque
-        const touch = e.changedTouches[0];
-        this.touchId = touch.identifier;
-        this.touchStartPos.set(touch.clientX, touch.clientY);
-        
-        // Mostrar joystick donde toco
-        this.joystickBase.style.display = 'block';
-        this.joystickBase.style.left = `${touch.clientX}px`;
-        this.joystickBase.style.top = `${touch.clientY}px`;
-        this.joystickStick.style.transform = 'translate(0px, 0px)';
+        this.touchStartX = e.touches[0].clientX;
     }
 
     onTouchMove(e) {
-        if (this.touchId === null) return;
-        for (let touch of e.changedTouches) {
-            if (touch.identifier === this.touchId) {
-                const move = new THREE.Vector2(touch.clientX, touch.clientY);
-                const dist = move.distanceTo(this.touchStartPos);
-                const maxDist = 50; // Radio del joystick base
-
-                const drag = move.sub(this.touchStartPos);
-                if (dist > maxDist) drag.normalize().multiplyScalar(maxDist);
-                
-                this.joystickStick.style.transform = `translate(${drag.x}px, ${drag.y}px)`;
-                
-                // Normalizar vector de movimiento (-1 a 1)
-                this.joystickVector.set(drag.x / maxDist, drag.y / maxDist);
-            }
-        }
+        const touchX = e.touches[0].clientX;
+        const diff = touchX - this.touchStartX;
+        if (diff > 20) this.touchMoveDir = 1; // Derecha
+        else if (diff < -20) this.touchMoveDir = -1; // Izquierda
+        else this.touchMoveDir = 0;
     }
 
-    onTouchEnd(e) {
-        for (let touch of e.changedTouches) {
-            if (touch.identifier === this.touchId) {
-                this.touchId = null;
-                this.joystickBase.style.display = 'none';
-                this.joystickVector.set(0, 0);
-            }
-        }
+    // Minar con Toque (Móvil) - Mina bloque frente al jugador
+    mineTouch() {
+        const lookDir = this.player.velocity.x >= 0 ? 1 : -1;
+        const mineX = this.player.mesh.position.x + lookDir;
+        const mineY = this.player.mesh.position.y;
+        this.world.removeBlock(mineX, mineY, 0);
     }
 
-    attack() {
-        // Lógica de ataque perfecta.
-        this.player.mesh.position.y += 0.2; // Pequeño salto
-        setTimeout(() => this.player.mesh.position.y -= 0.2, 100);
+    // Minar con Raycaster (PC) - Mina donde haces click
+    mine(event) {
+        const mouse = new THREE.Vector2(
+            (event.clientX / window.innerWidth) * 2 - 1,
+            -(event.clientY / window.innerHeight) * 2 + 1
+        );
+        const raycaster = new THREE.Raycaster();
+        raycaster.setFromCamera(mouse, this.camera);
+        
+        const intersects = raycaster.intersectObjects(Array.from(this.world.blocks.values()));
+        if (intersects.length > 0) {
+            const block = intersects[0].object;
+            this.world.removeBlock(block.position.x, block.position.y, block.position.z);
+        }
     }
 
     update(deltaTime) {
-        this.moveDir.set(0, 0, 0);
+        let moveX = 0;
 
-        // 1. Procesar Teclado (PC)
-        if (this.keys['w'] || this.keys['arrowup']) this.moveDir.z -= 1;
-        if (this.keys['s'] || this.keys['arrowdown']) this.moveDir.z += 1;
-        if (this.keys['a'] || this.keys['arrowleft']) this.moveDir.x -= 1;
-        if (this.keys['d'] || keys['arrowright']) this.moveDir.x += 1;
+        // Procesar Teclado
+        if (this.keys['a'] || this.keys['arrowleft']) moveX -= 1;
+        if (this.keys['d'] || this.keys['arrowright']) moveX += 1;
 
-        // 2. Procesar Táctil (Joystick)
-        if (this.joystickVector.length() > 0.1) {
-            this.moveDir.x = this.joystickVector.x;
-            this.moveDir.z = this.joystickVector.y;
-        }
+        // Procesar Táctil
+        if (this.touchMoveDir !== 0) moveX = this.touchMoveDir;
 
-        // 3. Aplicar Movimiento y Rotación al Personaje
-        if (this.moveDir.length() > 0.1) {
-            this.moveDir.normalize();
-            
-            // Mover
-            const moveStep = this.moveDir.clone().multiplyScalar(this.player.speed * deltaTime);
-            this.player.mesh.position.add(moveStep);
-            
-            // Rotar suavemente hacia la dirección de movimiento
-            const targetAngle = Math.atan2(this.moveDir.x, this.moveDir.z);
-            const currentAngle = this.player.mesh.rotation.y;
-            
-            // Suavizado perfecto de rotación
-            let deltaAngle = targetAngle - currentAngle;
-            if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
-            if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
-            
-            this.player.mesh.rotation.y += deltaAngle * this.player.rotationSpeed * deltaTime;
-        }
+        // Aplicar velocidad al jugador
+        this.player.velocity.x = moveX * this.player.moveSpeed;
 
-        // 4. Actualizar Cámara (Seguimiento suave)
-        this.camera.position.x = this.player.mesh.position.x + this.cameraOffset.x;
-        this.camera.position.y = this.player.mesh.position.y + this.cameraOffset.y;
-        this.camera.position.z = this.player.mesh.position.z + this.cameraOffset.z;
-        this.camera.lookAt(this.player.mesh.position);
+        // --- La Cámara Sigue al Jugador Suavemente ---
+        const targetX = this.player.mesh.position.x;
+        const targetY = this.player.mesh.position.y + 2;
+        this.camera.position.x += (targetX - this.camera.position.x) * 5 * deltaTime;
+        this.camera.position.y += (targetY - this.camera.position.y) * 5 * deltaTime;
+        this.camera.lookAt(targetX, targetY, 0);
     }
 }
