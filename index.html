@@ -370,15 +370,15 @@
         }
 
         function createPlayer() {
-            playerGroup = new THREE.Group();
+    playerGroup = new THREE.Group();
 
-            // Cuerpo del jugador
-            const bodyGeo = new THREE.SphereGeometry(1, 32, 32);
-            const bodyMat = new THREE.MeshStandardMaterial({ color: 0xf97316, roughness: 0.3 });
-            const body = new THREE.Mesh(bodyGeo, bodyMat);
-            body.position.y = 1;
-            body.castShadow = true;
-            playerGroup.add(body);
+    // Cuerpo del jugador
+    const bodyGeo = new THREE.SphereGeometry(1, 32, 32);
+    // ... (habrá más líneas aquí adentro) ...
+    rightHand.castShadow = true;
+    playerGroup.add(rightHand);
+
+    scene.add(playerGroup);
 
             // Manos
             const handGeo = new THREE.SphereGeometry(0.35, 16, 16);
