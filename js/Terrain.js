@@ -1,84 +1,52 @@
 // js/Terrain.js
-export class TerrainManager {
+export class Terrain {
     constructor(scene) {
         this.scene = scene;
-        this.grassBlades = [];
-        this.resources = [];
-        this.windTime = 0;
-
-        this.initTerrain();
-        this.initLighting();
-        this.generateResources();
+        this.createGround();
+        this.createResources();
     }
 
-    initTerrain() {
-        // Terreno 3D
-        const size = 120;
-        const geometry = new THREE.PlaneGeometry(size, size, 64, 64);
-        const material = new THREE.MeshStandardMaterial({
-            color: 0x3a7d44,
-            roughness: 0.9,
+    createGround() {
+        // Suelo Verde Realista con pBR
+        const groundGeo = new THREE.PlaneGeometry(200, 200, 10, 10);
+        const groundMat = new THREE.MeshStandardMaterial({
+            color: 0x4caf50,
+            roughness: 0.8,
             metalness: 0.1
         });
-
-        const ground = new THREE.Mesh(geometry, material);
+        const ground = new THREE.Mesh(groundGeo, groundMat);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
         this.scene.add(ground);
 
-        // Cuadrícula estética
-        const grid = new THREE.GridHelper(size, 40, 0x2e6636, 0x2e6636);
+        // Cuadrícula estética estilo .io
+        const grid = new THREE.GridHelper(200, 50, 0x388e3c, 0x388e3c);
         grid.position.y = 0.01;
         this.scene.add(grid);
     }
 
-    initLighting() {
-        // Luz Ambiental
-        const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-        this.scene.add(ambientLight);
-
-        // Sol (Luz Direccional con Sombras de Alta Definición)
-        const sun = new THREE.DirectionalLight(0xfffaed, 1.2);
-        sun.position.set(30, 50, 30);
-        sun.castShadow = true;
+    createResources() {
+        // Generar Rocas 3D con formas variadas (pBR metalizado)
+        const rockMat = new THREE.MeshStandardMaterial({ color: 0x757575, roughness: 0.6, metalness: 0.3 });
         
-        // Ajustes de resolución de sombra
-        sun.shadow.mapSize.width = 2048;
-        sun.shadow.mapSize.height = 2048;
-        sun.shadow.camera.near = 0.5;
-        sun.shadow.camera.far = 150;
-        const d = 40;
-        sun.shadow.camera.left = -d;
-        sun.shadow.camera.right = d;
-        sun.shadow.camera.top = d;
-        sun.shadow.camera.bottom = -d;
-
-        this.scene.add(sun);
-    }
-
-    generateResources() {
-        // Creación de Rocas 3D HD distribuidas aleatoriamente
-        const rockGeo = new THREE.DodecahedronGeometry(1.5, 1);
-        const rockMat = new THREE.MeshStandardMaterial({ color: 0x7f8c8d, roughness: 0.8 });
-
-        for (let i = 0; i < 25; i++) {
+        for (let i = 0; i < 30; i++) {
+            const size = 1 + Math.random() * 2;
+            const rockGeo = new THREE.DodecahedronGeometry(size, 1);
             const rock = new THREE.Mesh(rockGeo, rockMat);
+            
             rock.position.set(
-                (Math.random() - 0.5) * 80,
-                1,
-                (Math.random() - 0.5) * 80
+                (Math.random() - 0.5) * 160,
+                size / 2,
+                (Math.random() - 0.5) * 160
             );
-            rock.scale.set(1 + Math.random(), 0.8 + Math.random()*0.5, 1 + Math.random());
             rock.rotation.y = Math.random() * Math.PI;
             rock.castShadow = true;
             rock.receiveShadow = true;
             this.scene.add(rock);
-            this.resources.push(rock);
         }
     }
 
     update(deltaTime) {
-        // Animación dinámica de viento para detalles
-        this.windTime += deltaTime * 2;
+        // El terreno es estático por ahora.
     }
 }
