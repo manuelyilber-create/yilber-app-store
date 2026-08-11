@@ -1,249 +1,129 @@
-// Módulo de Controles, UI, Joystick y Sistema de Bolsos por Colores
-class ControlsManager {
-    constructor(scene) {
-        this.scene = scene;
-        this.slots = {};
-        this.currentTool = 'axe';
+// js/Controls.js
+export class Controls {
+    constructor(player, camera, canvas) {
+        this.player = player;
+        this.camera = camera;
+        this.canvas = canvas;
         
-        // Definición de Bolsos y sus capacidades
-        this.bags = [
-            { name: 'Bolso Anaranjado', slots: 10, color: 0xe67e22, iconColor: '#e67e22' },
-            { name: 'Bolso Verde', slots: 15, color: 0x2ecc71, iconColor: '#2ecc71' },
-            { name: 'Bolso Rojo', slots: 20, color: 0xe74c3c, iconColor: '#e74c3c' },
-            { name: 'Bolso Morado', slots: 30, color: 0x9b59b6, iconColor: '#9b59b6' },
-            { name: 'Bolso de Colores', slots: 40, color: 0xf1c40f, iconColor: '#f1c40f' }
-        ];
+        this.cameraOffset = new THREE.Vector3(0, 20, 15); // Vista .io perfecta
         
-        this.currentBagIndex = 0; // Comienza con el Bolso Anaranjado
-        this.isBagOpen = false;
+        // Estado de teclas
+        this.keys = {};
+        this.moveDir = new THREE.Vector3();
+        
+        // Estado Táctil (Joystick)
+        this.joystickZone = document.getElementById('joystick-zone');
+        this.joystickBase = document.getElementById('joystick-base');
+        this.joystickStick = document.getElementById('joystick-stick');
+        this.touchId = null;
+        this.touchStartPos = new THREE.Vector2();
+        this.joystickVector = new THREE.Vector2(); // -1 a 1
 
-        // Variables de Joystick Táctil
-        this.joystickPointer = null;
-        this.joystickBase = { x: 120, y: window.innerHeight - 120 };
-        this.joystickVector = { x: 0, y: 0 };
-
-        this.initKeyboard();
-        this.initUI();
+        this.initPCControls();
         this.initTouchControls();
     }
 
-    initKeyboard() {
-        this.cursors = this.scene.input.keyboard.createCursorKeys();
-        this.wasd = this.scene.input.keyboard.addKeys({
-            up: Phaser.Input.Keyboard.KeyCodes.W,
-            down: Phaser.Input.Keyboard.KeyCodes.S,
-            left: Phaser.Input.Keyboard.KeyCodes.A,
-            right: Phaser.Input.Keyboard.KeyCodes.D
-        });
-
-        this.scene.input.keyboard.on('keydown-ONE', () => this.selectTool('axe'));
-        this.scene.input.keyboard.on('keydown-TWO', () => this.selectTool('pickaxe'));
-        this.scene.input.keyboard.on('keydown-THREE', () => this.selectTool('hammer'));
-        
-        // Abrir/cerrar mochila con la tecla B
-        this.scene.input.keyboard.on('keydown-B', () => this.toggleBag());
-    }
-
-    initUI() {
-        let ui = this.scene.add.graphics().setScrollFactor(0).setDepth(100);
-
-        // 1. Panel de Recursos (Arriba Izquierda)
-        ui.fillStyle(0x000000, 0.6);
-        ui.fillRoundedRect(15, 15, 180, 140, 10);
-
-        this.woodText = this.scene.add.text(25, 25, '🪵 Madera: 0', { font: 'bold 15px Arial', fill: '#f39c12' }).setScrollFactor(0).setDepth(101);
-        this.stoneText = this.scene.add.text(25, 55, '🪨 Piedra: 0', { font: 'bold 15px Arial', fill: '#bdc3c7' }).setScrollFactor(0).setDepth(101);
-        this.goldText = this.scene.add.text(25, 85, '🟡 Oro: 0', { font: 'bold 15px Arial', fill: '#f1c40f' }).setScrollFactor(0).setDepth(101);
-        this.diamondText = this.scene.add.text(25, 115, '🔷 Diamante: 0', { font: 'bold 15px Arial', fill: '#00d2d3' }).setScrollFactor(0).setDepth(101);
-
-        // 2. Botón de Bolso / Mochila (Arriba Derecha)
-        let bagX = window.innerWidth - 70;
-        let bagY = 20;
-
-        this.bagBtnGraphics = this.scene.add.rectangle(bagX, bagY + 25, 50, 50, 0x2c3e50, 0.8)
-            .setScrollFactor(0).setDepth(101).setInteractive();
-        this.updateBagButtonBorder();
-
-        this.scene.add.text(bagX - 16, bagY + 8, '🎒', { font: '28px Arial' }).setScrollFactor(0).setDepth(102);
-        
-        this.bagBtnGraphics.on('pointerdown', () => this.toggleBag());
-
-        // Panel emergente de la Mochila
-        this.bagContainer = this.scene.add.container(0, 0).setScrollFactor(0).setDepth(150);
-        this.bagContainer.setVisible(false);
-
-        // 3. HOTBAR - Barra de Herramientas (Abajo Centro)
-        let startX = window.innerWidth / 2 - 100;
-        let startY = window.innerHeight - 60;
-        let toolNames = ['axe', 'pickaxe', 'hammer'];
-        let icons = ['🪓', '⛏️', '🔨'];
-
-        toolNames.forEach((name, i) => {
-            let x = startX + i * 70;
-            let box = this.scene.add.rectangle(x, startY, 55, 55, 0x000000, 0.7).setScrollFactor(0).setDepth(101).setInteractive();
-            box.setStrokeStyle(2, 0xffffff);
-
-            this.scene.add.text(x - 12, startY - 16, icons[i], { font: '24px Arial' }).setScrollFactor(0).setDepth(102);
-            this.scene.add.text(x - 22, startY - 24, (i + 1).toString(), { font: 'bold 11px Arial', fill: '#ffffff' }).setScrollFactor(0).setDepth(102);
-
-            box.on('pointerdown', () => this.selectTool(name));
-            this.slots[name] = box;
-        });
-
-        this.selectTool('axe');
+    initPCControls() {
+        window.addEventListener('keydown', (e) => this.keys[e.key.toLowerCase()] = true);
+        window.addEventListener('keyup', (e) => this.keys[e.key.toLowerCase()] = false);
     }
 
     initTouchControls() {
-        let touchGraphics = this.scene.add.graphics().setScrollFactor(0).setDepth(100);
+        this.joystickZone.addEventListener('touchstart', (e) => this.onTouchStart(e));
+        this.joystickZone.addEventListener('touchmove', (e) => this.onTouchMove(e));
+        this.joystickZone.addEventListener('touchend', (e) => this.onTouchEnd(e));
+        
+        // Botón de ataque
+        document.getElementById('attack-btn').addEventListener('touchstart', () => this.attack());
+    }
 
-        // Base del Joystick (Izquierda)
-        touchGraphics.lineStyle(4, 0xffffff, 0.4);
-        touchGraphics.strokeCircle(this.joystickBase.x, this.joystickBase.y, 50);
+    onTouchStart(e) {
+        if (this.touchId !== null) return; // Ya hay un toque
+        const touch = e.changedTouches[0];
+        this.touchId = touch.identifier;
+        this.touchStartPos.set(touch.clientX, touch.clientY);
+        
+        // Mostrar joystick donde toco
+        this.joystickBase.style.display = 'block';
+        this.joystickBase.style.left = `${touch.clientX}px`;
+        this.joystickBase.style.top = `${touch.clientY}px`;
+        this.joystickStick.style.transform = 'translate(0px, 0px)';
+    }
 
-        // Botón Interno del Joystick
-        this.joystickThumb = this.scene.add.circle(this.joystickBase.x, this.joystickBase.y, 25, 0xffffff, 0.5)
-            .setScrollFactor(0).setDepth(101);
+    onTouchMove(e) {
+        if (this.touchId === null) return;
+        for (let touch of e.changedTouches) {
+            if (touch.identifier === this.touchId) {
+                const move = new THREE.Vector2(touch.clientX, touch.clientY);
+                const dist = move.distanceTo(this.touchStartPos);
+                const maxDist = 50; // Radio del joystick base
 
-        // Botón de Disparo / Acción (Derecha)
-        let attackX = window.innerWidth - 100;
-        let attackY = window.innerHeight - 100;
-
-        let attackBtn = this.scene.add.circle(attackX, attackY, 40, 0xe74c3c, 0.7)
-            .setScrollFactor(0).setDepth(101).setInteractive();
-        attackBtn.setStrokeStyle(3, 0xffffff);
-
-        this.scene.add.text(attackX - 15, attackY - 15, '⚔️', { font: '28px Arial' }).setScrollFactor(0).setDepth(102);
-
-        attackBtn.on('pointerdown', () => {
-            useTool(this.scene);
-        });
-
-        // Eventos táctiles para el Joystick
-        this.scene.input.on('pointerdown', (pointer) => {
-            if (pointer.x < window.innerWidth / 2 && pointer.y > window.innerHeight / 2) {
-                this.joystickPointer = pointer;
+                const drag = move.sub(this.touchStartPos);
+                if (dist > maxDist) drag.normalize().multiplyScalar(maxDist);
+                
+                this.joystickStick.style.transform = `translate(${drag.x}px, ${drag.y}px)`;
+                
+                // Normalizar vector de movimiento (-1 a 1)
+                this.joystickVector.set(drag.x / maxDist, drag.y / maxDist);
             }
-        });
+        }
+    }
 
-        this.scene.input.on('pointermove', (pointer) => {
-            if (this.joystickPointer && pointer.id === this.joystickPointer.id) {
-                let dist = Phaser.Math.Distance.Between(this.joystickBase.x, this.joystickBase.y, pointer.x, pointer.y);
-                let angle = Phaser.Math.Angle.Between(this.joystickBase.x, this.joystickBase.y, pointer.x, pointer.y);
-
-                let maxDist = 45;
-                let clampDist = Math.min(dist, maxDist);
-
-                this.joystickThumb.x = this.joystickBase.x + Math.cos(angle) * clampDist;
-                this.joystickThumb.y = this.joystickBase.y + Math.sin(angle) * clampDist;
-
-                this.joystickVector.x = (Math.cos(angle) * clampDist) / maxDist;
-                this.joystickVector.y = (Math.sin(angle) * clampDist) / maxDist;
+    onTouchEnd(e) {
+        for (let touch of e.changedTouches) {
+            if (touch.identifier === this.touchId) {
+                this.touchId = null;
+                this.joystickBase.style.display = 'none';
+                this.joystickVector.set(0, 0);
             }
-        });
-
-        this.scene.input.on('pointerup', (pointer) => {
-            if (this.joystickPointer && pointer.id === this.joystickPointer.id) {
-                this.joystickPointer = null;
-                this.joystickThumb.x = this.joystickBase.x;
-                this.joystickThumb.y = this.joystickBase.y;
-                this.joystickVector = { x: 0, y: 0 };
-            }
-        });
-    }
-
-    toggleBag() {
-        this.isBagOpen = !this.isBagOpen;
-        this.bagContainer.setVisible(this.isBagOpen);
-        if (this.isBagOpen) {
-            this.renderBagGrid();
         }
     }
 
-    // Función para equipar un bolso mejor (0: Anaranjado, 1: Verde, 2: Rojo, 3: Morado, 4: Colores)
-    equipBag(index) {
-        if (index >= 0 && index < this.bags.length) {
-            this.currentBagIndex = index;
-            this.updateBagButtonBorder();
-            if (this.isBagOpen) this.renderBagGrid();
-        }
+    attack() {
+        // Lógica de ataque perfecta.
+        this.player.mesh.position.y += 0.2; // Pequeño salto
+        setTimeout(() => this.player.mesh.position.y -= 0.2, 100);
     }
 
-    updateBagButtonBorder() {
-        let currentBag = this.bags[this.currentBagIndex];
-        this.bagBtnGraphics.setStrokeStyle(3, currentBag.color);
-    }
+    update(deltaTime) {
+        this.moveDir.set(0, 0, 0);
 
-    renderBagGrid() {
-        this.bagContainer.removeAll(true);
+        // 1. Procesar Teclado (PC)
+        if (this.keys['w'] || this.keys['arrowup']) this.moveDir.z -= 1;
+        if (this.keys['s'] || this.keys['arrowdown']) this.moveDir.z += 1;
+        if (this.keys['a'] || this.keys['arrowleft']) this.moveDir.x -= 1;
+        if (this.keys['d'] || keys['arrowright']) this.moveDir.x += 1;
 
-        let currentBag = this.bags[this.currentBagIndex];
-        let cols = 5;
-        let rows = Math.ceil(currentBag.slots / cols);
-
-        let panelWidth = 340;
-        let panelHeight = 80 + rows * 52;
-
-        let bg = this.scene.add.rectangle(window.innerWidth / 2, window.innerHeight / 2, panelWidth, panelHeight, 0x000000, 0.88);
-        bg.setStrokeStyle(3, currentBag.color);
-        this.bagContainer.add(bg);
-
-        let title = this.scene.add.text(
-            window.innerWidth / 2 - 130, 
-            window.innerHeight / 2 - panelHeight / 2 + 20, 
-            `🎒 ${currentBag.name} (${currentBag.slots} Espacios)`, 
-            { font: 'bold 15px Arial', fill: currentBag.iconColor }
-        );
-        this.bagContainer.add(title);
-
-        let startX = window.innerWidth / 2 - 104;
-        let startY = window.innerHeight / 2 - panelHeight / 2 + 60;
-
-        for (let i = 0; i < currentBag.slots; i++) {
-            let row = Math.floor(i / cols);
-            let col = i % cols;
-            let x = startX + col * 52;
-            let y = startY + row * 52;
-
-            let slotBg = this.scene.add.rectangle(x, y, 46, 46, 0x2c3e50, 0.8);
-            slotBg.setStrokeStyle(1, 0x7f8c8d);
-            this.bagContainer.add(slotBg);
-
-            let slotNum = this.scene.add.text(x - 20, y - 20, (i + 1).toString(), { font: '9px Arial', fill: '#95a5a6' });
-            this.bagContainer.add(slotNum);
-        }
-    }
-
-    selectTool(type) {
-        this.currentTool = type;
-        if (this.scene.toolSprite) {
-            this.scene.toolSprite.setTexture(type);
-        }
-        Object.keys(this.slots).forEach(key => this.slots[key].setStrokeStyle(2, 0xffffff));
-        if (this.slots[type]) this.slots[type].setStrokeStyle(4, 0xf1c40f);
-    }
-
-    updateResources(wood, stone, gold, diamond) {
-        this.woodText.setText('🪵 Madera: ' + wood);
-        this.stoneText.setText('🪨 Piedra: ' + stone);
-        this.goldText.setText('🟡 Oro: ' + gold);
-        this.diamondText.setText('🔷 Diamante: ' + diamond);
-    }
-
-    getMovementVelocity(speed) {
-        let vx = 0;
-        let vy = 0;
-
-        if (this.cursors.left.isDown || this.wasd.left.isDown) vx = -speed;
-        else if (this.cursors.right.isDown || this.wasd.right.isDown) vx = speed;
-
-        if (this.cursors.up.isDown || this.wasd.up.isDown) vy = -speed;
-        else if (this.cursors.down.isDown || this.wasd.down.isDown) vy = speed;
-
-        if (this.joystickVector.x !== 0 || this.joystickVector.y !== 0) {
-            vx = this.joystickVector.x * speed;
-            vy = this.joystickVector.y * speed;
+        // 2. Procesar Táctil (Joystick)
+        if (this.joystickVector.length() > 0.1) {
+            this.moveDir.x = this.joystickVector.x;
+            this.moveDir.z = this.joystickVector.y;
         }
 
-        return { x: vx, y: vy };
+        // 3. Aplicar Movimiento y Rotación al Personaje
+        if (this.moveDir.length() > 0.1) {
+            this.moveDir.normalize();
+            
+            // Mover
+            const moveStep = this.moveDir.clone().multiplyScalar(this.player.speed * deltaTime);
+            this.player.mesh.position.add(moveStep);
+            
+            // Rotar suavemente hacia la dirección de movimiento
+            const targetAngle = Math.atan2(this.moveDir.x, this.moveDir.z);
+            const currentAngle = this.player.mesh.rotation.y;
+            
+            // Suavizado perfecto de rotación
+            let deltaAngle = targetAngle - currentAngle;
+            if (deltaAngle > Math.PI) deltaAngle -= Math.PI * 2;
+            if (deltaAngle < -Math.PI) deltaAngle += Math.PI * 2;
+            
+            this.player.mesh.rotation.y += deltaAngle * this.player.rotationSpeed * deltaTime;
+        }
+
+        // 4. Actualizar Cámara (Seguimiento suave)
+        this.camera.position.x = this.player.mesh.position.x + this.cameraOffset.x;
+        this.camera.position.y = this.player.mesh.position.y + this.cameraOffset.y;
+        this.camera.position.z = this.player.mesh.position.z + this.cameraOffset.z;
+        this.camera.lookAt(this.player.mesh.position);
     }
 }
