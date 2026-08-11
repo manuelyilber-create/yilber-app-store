@@ -1,60 +1,62 @@
 // js/Player.js
+import * as THREE from 'https://unpkg.com/three@0.128.0/build/three.module.js';
+
 export class Player {
-    constructor(scene) {
+    constructor(scene, world) {
         this.scene = scene;
-        this.mesh = new THREE.Group();
+        this.world = world;
+        
+        // Modelo simple del personaje
+        this.mesh = new THREE.Mesh(
+            new THREE.BoxGeometry(0.6, 1.8, 0.6),
+            new THREE.MeshStandardMaterial({ color: 0xff4500 })
+        );
+        this.mesh.position.set(0, 10, 0); // Empezar en el aire
+        this.mesh.castShadow = true;
         this.scene.add(this.mesh);
-        
-        this.speed = 12;
-        this.rotationSpeed = 10;
-        this.isRunning = false;
-    }
 
-    async load() {
-        // En un entorno profesional, aquí usaríamos THREE.GLTFLoader() para cargar 'player.glb'.
-        // Para garantizar PERFECCIÓN INMEDIATA sin errores de CORS, construimos un avatar humanoide PRO.
-        
-        const skinMat = new THREE.MeshStandardMaterial({ color: 0xffdbac, roughness: 0.7 });
-        const clothesMat = new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.6 }); // Azul
-
-        // Cabeza
-        const head = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.6, 0.6), skinMat);
-        head.position.y = 1.7; head.castShadow = true;
-        this.mesh.add(head);
-
-        // Torso
-        const torso = new THREE.Mesh(new THREE.BoxGeometry(0.8, 1.0, 0.4), clothesMat);
-        torso.position.y = 0.9; torso.castShadow = true;
-        this.mesh.add(torso);
-
-        // Extremidades (Construcción perfecta para animación futura)
-        const limbGeo = new THREE.BoxGeometry(0.3, 0.9, 0.3);
-        
-        this.leftArm = new THREE.Mesh(limbGeo, clothesMat);
-        this.leftArm.position.set(-0.6, 0.9, 0); this.leftArm.castShadow = true;
-        this.mesh.add(this.leftArm);
-
-        this.rightArm = new THREE.Mesh(limbGeo, clothesMat);
-        this.rightArm.position.set(0.6, 0.9, 0); this.rightArm.castShadow = true;
-        this.mesh.add(this.rightArm);
-
-        const pantsMat = new THREE.MeshStandardMaterial({ color: 0x1e293b });
-        this.leftLeg = new THREE.Mesh(limbGeo, pantsMat);
-        this.leftLeg.position.set(-0.25, 0.0, 0); this.leftLeg.castShadow = true;
-        this.mesh.add(this.leftLeg);
-
-        this.rightLeg = new THREE.Mesh(limbGeo, pantsMat);
-        this.rightLeg.position.set(0.25, 0.0, 0); this.rightLeg.castShadow = true;
-        this.mesh.add(this.rightLeg);
-        
-        // Asegurar que el personaje empiece en el suelo
-        this.mesh.position.y = 0.45; // Ajuste para que las piernas toquen el suelo
-
-        return Promise.resolve(); // Simular carga completada perfectamente
+        // Físicas
+        this.velocity = new THREE.Vector3();
+        this.gravity = -25;
+        this.moveSpeed = 8;
+        this.jumpForce = 12;
+        this.onGround = false;
     }
 
     update(deltaTime) {
-        // Aquí iría la lógica de animación de las extremidades al moverse.
-        // Por ahora, el personaje es estático pero la estructura está perfecta.
+        // Aplicar gravedad
+        this.velocity.y += this.gravity * deltaTime;
+        
+        // Movimiento tentativo
+        const nextPos = this.mesh.position.clone().add(this.velocity.clone().multiplyScalar(deltaTime));
+        
+        // Reseteo Ground state
+        this.onGround = false;
+
+        // --- Colisión Simple (Pies y Cabeza) ---
+        // Chequear pies
+        if (this.world.isBlocked(nextPos.x, nextPos.y - 0.9, 0)) {
+            if (this.velocity.y < 0) {
+                this.velocity.y = 0;
+                this.mesh.position.y = Math.round(nextPos.y - 0.9) + 1.4; // Ajuste
+                this.onGround = true;
+            }
+        } else {
+            this.mesh.position.y = nextPos.y;
+        }
+
+        // Chequear muros (Izquierda/Derecha)
+        if (!this.world.isBlocked(nextPos.x + (this.velocity.x > 0 ? 0.35 : -0.35), this.mesh.position.y, 0)) {
+            this.mesh.position.x = nextPos.x;
+        } else {
+            this.velocity.x = 0;
+        }
+    }
+
+    jump() {
+        if (this.onGround) {
+            this.velocity.y = this.jumpForce;
+            this.onGround = false;
+        }
     }
 }
