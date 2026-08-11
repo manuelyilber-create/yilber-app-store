@@ -1,73 +1,84 @@
-// js/Terrain.js - Módulo exclusivo del Terreno 3D
+// js/Terrain.js
 export class TerrainManager {
     constructor(scene) {
         this.scene = scene;
         this.grassBlades = [];
+        this.resources = [];
         this.windTime = 0;
 
         this.initTerrain();
-        this.initLights();
-        this.createGrass();
+        this.initLighting();
+        this.generateResources();
     }
 
     initTerrain() {
-        // Plano 3D de terreno de 100x100 unidades
-        const geometry = new THREE.PlaneGeometry(100, 100, 32, 32);
-        
-        // Material verde realista que reacciona a la luz
+        // Terreno 3D
+        const size = 120;
+        const geometry = new THREE.PlaneGeometry(size, size, 64, 64);
         const material = new THREE.MeshStandardMaterial({
-            color: 0x2d8a4e,
-            roughness: 0.8,
+            color: 0x3a7d44,
+            roughness: 0.9,
             metalness: 0.1
         });
 
-        this.ground = new THREE.Mesh(geometry, material);
-        this.ground.rotation.x = -Math.PI / 2; // Acostar el plano horizontalmente
-        this.ground.receiveShadow = true;
-        this.scene.add(this.ground);
+        const ground = new THREE.Mesh(geometry, material);
+        ground.rotation.x = -Math.PI / 2;
+        ground.receiveShadow = true;
+        this.scene.add(ground);
+
+        // Cuadrícula estética
+        const grid = new THREE.GridHelper(size, 40, 0x2e6636, 0x2e6636);
+        grid.position.y = 0.01;
+        this.scene.add(grid);
     }
 
-    initLights() {
-        // Luz ambiental suave
+    initLighting() {
+        // Luz Ambiental
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
         this.scene.add(ambientLight);
 
-        // Luz solar con sombras
-        const sunLight = new THREE.DirectionalLight(0xfffaed, 0.8);
-        sunLight.position.set(20, 40, 20);
-        sunLight.castShadow = true;
-        this.scene.add(sunLight);
+        // Sol (Luz Direccional con Sombras de Alta Definición)
+        const sun = new THREE.DirectionalLight(0xfffaed, 1.2);
+        sun.position.set(30, 50, 30);
+        sun.castShadow = true;
+        
+        // Ajustes de resolución de sombra
+        sun.shadow.mapSize.width = 2048;
+        sun.shadow.mapSize.height = 2048;
+        sun.shadow.camera.near = 0.5;
+        sun.shadow.camera.far = 150;
+        const d = 40;
+        sun.shadow.camera.left = -d;
+        sun.shadow.camera.right = d;
+        sun.shadow.camera.top = d;
+        sun.shadow.camera.bottom = -d;
+
+        this.scene.add(sun);
     }
 
-    createGrass() {
-        // Generación de briznas 3D distribuidas en el campo
-        const bladeGeometry = new THREE.ConeGeometry(0.08, 0.6, 3);
-        const bladeMaterial = new THREE.MeshLambertMaterial({ color: 0x4cd137 });
+    generateResources() {
+        // Creación de Rocas 3D HD distribuidas aleatoriamente
+        const rockGeo = new THREE.DodecahedronGeometry(1.5, 1);
+        const rockMat = new THREE.MeshStandardMaterial({ color: 0x7f8c8d, roughness: 0.8 });
 
-        for (let i = 0; i < 600; i++) {
-            const blade = new THREE.Mesh(bladeGeometry, bladeMaterial);
-            
-            // Posición aleatoria en el mapa
-            const x = (Math.random() - 0.5) * 80;
-            const z = (Math.random() - 0.5) * 80;
-            
-            blade.position.set(x, 0.3, z);
-            blade.rotation.y = Math.random() * Math.PI;
-            blade.castShadow = true;
-
-            this.grassBlades.push(blade);
-            this.scene.add(blade);
+        for (let i = 0; i < 25; i++) {
+            const rock = new THREE.Mesh(rockGeo, rockMat);
+            rock.position.set(
+                (Math.random() - 0.5) * 80,
+                1,
+                (Math.random() - 0.5) * 80
+            );
+            rock.scale.set(1 + Math.random(), 0.8 + Math.random()*0.5, 1 + Math.random());
+            rock.rotation.y = Math.random() * Math.PI;
+            rock.castShadow = true;
+            rock.receiveShadow = true;
+            this.scene.add(rock);
+            this.resources.push(rock);
         }
     }
 
-    // Bucle de actualización para animar el viento
     update(deltaTime) {
+        // Animación dinámica de viento para detalles
         this.windTime += deltaTime * 2;
-        const windAngle = Math.sin(this.windTime) * 0.15;
-
-        // Inclinación suave de cada brizna simulando viento
-        this.grassBlades.forEach((blade) => {
-            blade.rotation.z = windAngle;
-        });
     }
 }
